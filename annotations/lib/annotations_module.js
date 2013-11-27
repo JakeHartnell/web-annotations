@@ -555,7 +555,7 @@ var EpubAnnotationsModule = function (contentDocumentDOM, bbPageSetView, annotat
             leftAddition = -this.getPaginationLeftOffset();
 
             if (type === "highlight") {
-                this.annotations.addHighlight(CFI, selectionInfo.selectedElements, id, 0, leftAddition, , CFIRangeInfo.startElement, CFIRangeInfo.endElement);
+                this.annotations.addHighlight(CFI, selectionInfo.selectedElements, id, 0, leftAddition, CFIRangeInfo.startElement, CFIRangeInfo.endElement);
             }
             else if (type === "underline") {
                 this.annotations.addUnderline(CFI, selectionInfo.selectedElements, id, 0, leftAddition);
@@ -940,6 +940,7 @@ var EpubAnnotationsModule = function (contentDocumentDOM, bbPageSetView, annotat
         return {
             "bookmarkViews" : [],
             "highlights" : [],
+            "markers"    : {},
             "underlines" : [],
             "imageAnnotations" : [],
             "annotationHash" : {},

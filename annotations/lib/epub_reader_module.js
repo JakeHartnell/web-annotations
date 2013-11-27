@@ -131,7 +131,8 @@ var EpubReaderModule = function(readerBoundElement, epubSpineInfo, viewerSetting
         this.get("viewerSettings").customStyles = [];
 
         this.loadStrategy = new EpubReader.LoadStrategy({ spineInfo : this.get("spine")});
-        this.cfi = new EpubCFIModule();
+//        this.cfi = new EpubCFIModule();
+        this.cfi = EPUBcfi;
     },
 
     // ------------------------------------------------------------------------------------ //  
@@ -498,7 +499,7 @@ var EpubReaderModule = function(readerBoundElement, epubSpineInfo, viewerSetting
         this.startPropogatingEvents();
 
         this.readerBoundElement = options.readerElement;
-        this.cfi = new EpubCFIModule();
+        this.cfi = EPUBcfi;
     },
 
     render : function () {

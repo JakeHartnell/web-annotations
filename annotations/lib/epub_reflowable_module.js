@@ -567,7 +567,8 @@ EpubReflowable.ReflowableElementInfo = Backbone.Model.extend({
 
     initialize: function (options) {
 
-		this.epubCFI = new EpubCFIModule();
+		this.epubCFI = EPUBcfi;
+
     },
 
     // ------------------------------------------------------------------------------------ //
@@ -1275,7 +1276,8 @@ EpubReflowable.Trigger.prototype.execute = function(dom) {
         this.customizer;
 
 		this.annotations;
-        this.cfi = new EpubCFIModule();
+        this.cfi = EPUBcfi;
+
 	},
 	
 	destruct : function() {},
