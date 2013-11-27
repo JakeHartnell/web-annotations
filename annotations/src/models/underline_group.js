@@ -20,7 +20,7 @@ EpubAnnotations.UnderlineGroup = Backbone.Model.extend({
 
         // Trigger this event on each of the underline views (except triggering event)
         if (event.type === "click") {
-            that.get("bbPageSetView").trigger("annotationClicked", "underline", that.get("CFI"), that.get("id"));
+            that.get("bbPageSetView").trigger("annotationClicked", "underline", that.get("CFI"), that.get("id"), event);
             return;
         }
 

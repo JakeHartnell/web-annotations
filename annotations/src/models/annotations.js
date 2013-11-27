@@ -4,6 +4,7 @@ EpubAnnotations.Annotations = Backbone.Model.extend({
         return {
             "bookmarkViews" : [],
             "highlights" : [],
+            "markers"    : {},
             "underlines" : [],
             "imageAnnotations" : [],
             "annotationHash" : {},
@@ -14,6 +15,14 @@ EpubAnnotations.Annotations = Backbone.Model.extend({
     },
 
     initialize : function (attributes, options) {},
+
+
+    remove: function() {
+        var that = this;
+        _.each(this.get("highlights"), function (highlightGroup) {
+            highlightGroup.remove();
+        });
+    },
 
     redrawAnnotations : function (offsetTop, offsetLeft) {
 
@@ -133,8 +142,37 @@ EpubAnnotations.Annotations = Backbone.Model.extend({
         $(this.get("readerBoundElement")).append(bookmarkView.render());
     },
 
-    addHighlight : function (CFI, highlightedTextNodes, annotationId, offsetTop, offsetLeft) {
+    removeHighlight: function(annotationId) {
+        var annotationHash = this.get("annotationHash");
+        var highlights = this.get("highlights");
+        var markers = this.get("markers");
 
+        var startMarker =  markers[annotationId].startMarker;
+        var endMarker = markers[annotationId].endMarker;
+
+        startMarker.remove();
+        endMarker.remove();
+
+        delete markers[annotationId];
+
+        delete annotationHash[annotationId];
+
+        highlights = _.reject(highlights, 
+                              function(obj) { 
+                                  if (obj.id == annotationId) {
+                                      obj.destroyCurrentHighlights();
+                                      return true;
+                                  } else {
+                                      return false;
+                                  }
+                              }
+                             );
+
+
+                             this.set("highlights", highlights);
+    },
+
+    addHighlight : function (CFI, highlightedTextNodes, annotationId, offsetTop, offsetLeft, startMarker, endMarker) {
         if (!offsetTop) {
             offsetTop = this.get("offsetTopAddition");
         }
@@ -155,6 +193,7 @@ EpubAnnotations.Annotations = Backbone.Model.extend({
         });
         this.get("annotationHash")[annotationId] = highlightGroup;
         this.get("highlights").push(highlightGroup);
+        this.get("markers")[annotationId] = {"startMarker": startMarker, "endMarker":endMarker};
         highlightGroup.renderHighlights(this.get("readerBoundElement"));
     },
 

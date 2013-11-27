@@ -70,6 +70,18 @@ var EpubAnnotationsModule = function (contentDocumentDOM, bbPageSetView, annotat
         },
         getImageAnnotations : function () {
 
+        }, 
+        removeAnnotation: function (annotationId) {
+            return reflowableAnnotations.remove(annotationId);
+        },
+        getCurrentSelectionCFI: function () {
+            return reflowableAnnotations.getCurrentSelectionCFI();
+        },
+        getCurrentSelectionOffsetCFI: function () {
+            return reflowableAnnotations.getCurrentSelectionOffsetCFI();
+        },
+        removeHighlight: function (annotationId) {
+            return reflowableAnnotations.removeHighlight(annotationId);
         }
     };
 };

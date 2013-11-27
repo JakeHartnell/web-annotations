@@ -95,7 +95,8 @@ EpubAnnotations.BookmarkView = Backbone.View.extend({
             this.bookmark.get("CFI"), 
             this.bookmark.get("id"),
             this.$el.css("top"),
-            this.$el.css("left")
+            this.$el.css("left"),
+            event
         );
     }
 });

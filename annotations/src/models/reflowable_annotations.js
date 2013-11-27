@@ -2,16 +2,28 @@ EpubAnnotations.ReflowableAnnotations = Backbone.Model.extend({
 
     initialize : function (attributes, options) {
         
-        this.epubCFI = new EpubCFIModule();
+        this.epubCFI = EPUBcfi;
         this.annotations = new EpubAnnotations.Annotations({
             offsetTopAddition : 0, 
             offsetLeftAddition : 0, 
             readerBoundElement : $("html", this.get("contentDocumentDOM"))[0],
-            bbPageSetView : this.get("reflowableView")
+            bbPageSetView : this.get("bbPageSetView")
         });
         // inject annotation CSS into iframe 
 
         this.injectAnnotationCSS(this.get("annotationCSSUrl"));
+
+        // emit an event when user selects some text.
+        var epubWindow = $(this.get("contentDocumentDOM"));
+        var self = this;
+        epubWindow.on("mouseup", function(event) {
+            var range = self.getCurrentSelectionRange();
+            if (range.startOffset - range.endOffset) {
+                self.annotations.get("bbPageSetView").trigger("textSelectionEvent", event);
+            }
+        });
+
+
     },
 
     // ------------------------------------------------------------------------------------ //
@@ -23,6 +35,12 @@ EpubAnnotations.ReflowableAnnotations = Backbone.Model.extend({
         var leftAddition = -this.getPaginationLeftOffset();
         this.annotations.redrawAnnotations(0, leftAddition);
     },
+
+   removeHighlight: function(annotationId) {
+        return this.annotations.removeHighlight(annotationId)
+    },
+
+
 
     addHighlight : function (CFI, id, type) {
 
@@ -59,7 +77,7 @@ EpubAnnotations.ReflowableAnnotations = Backbone.Model.extend({
             leftAddition = -this.getPaginationLeftOffset();
 
             if (type === "highlight") {
-                this.annotations.addHighlight(CFI, selectionInfo.selectedElements, id, 0, leftAddition);
+                this.annotations.addHighlight(CFI, selectionInfo.selectedElements, id, 0, leftAddition, CFIRangeInfo.startElement, CFIRangeInfo.endElement);
             }
             else if (type === "underline") {
                 this.annotations.addUnderline(CFI, selectionInfo.selectedElements, id, 0, leftAddition);
@@ -133,6 +151,33 @@ EpubAnnotations.ReflowableAnnotations = Backbone.Model.extend({
             console.log(error.message);
         }
     },
+
+    // this returns a partial CFI only!!
+    getCurrentSelectionCFI: function() {
+        var currentSelection = this.getCurrentSelectionRange();
+        var CFI;
+        if (currentSelection) {
+            selectionInfo = this.getSelectionInfo(currentSelection);
+            CFI = selectionInfo.CFI;
+        }
+
+        return CFI;
+    },
+
+    // this returns a partial CFI only!!
+    getCurrentSelectionOffsetCFI: function() {
+        var currentSelection = this.getCurrentSelectionRange();
+
+        var CFI;
+        if (currentSelection) {
+            CFI = this.generateCharOffsetCFI(currentSelection);
+        }
+        return CFI;
+    },
+
+
+    /// TODODM refactor thhis using getCurrentSelectionCFI (above)
+
 
     addSelectionHighlight : function (id, type) {
 
@@ -367,7 +412,7 @@ EpubAnnotations.ReflowableAnnotations = Backbone.Model.extend({
         if (iframeDocument.getSelection) {
             currentSelection = iframeDocument.getSelection();
 
-            if (currentSelection.rangeCount) {
+            if (currentSelection && currentSelection.rangeCount) {
                 return currentSelection.getRangeAt(0);
             }
         }
