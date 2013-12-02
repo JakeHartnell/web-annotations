@@ -24,6 +24,14 @@ EpubAnnotations.HighlightGroup = Backbone.Model.extend({
             return;
         }
 
+
+        // Trigger this event on each of the highlight views (except triggering event)
+        if (event.type === "contextMenu") {
+            that.get("bbPageSetView").trigger("annotationRightClicked", "highlight", that.get("CFI"), that.get("id"), event);
+            return;
+        }
+
+
         // Events that are called on each member of the group
         _.each(this.get("highlightViews"), function (highlightView) {
 
