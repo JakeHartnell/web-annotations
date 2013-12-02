@@ -206,6 +206,14 @@ var EpubAnnotationsModule = function (contentDocumentDOM, bbPageSetView, annotat
             return;
         }
 
+
+        // Trigger this event on each of the highlight views (except triggering event)
+        if (event.type === "contextMenu") {
+            that.get("bbPageSetView").trigger("annotationRightClicked", "highlight", that.get("CFI"), that.get("id"), event);
+            return;
+        }
+
+
         // Events that are called on each member of the group
         _.each(this.get("highlightViews"), function (highlightView) {
 
@@ -1298,7 +1306,8 @@ var EpubAnnotationsModule = function (contentDocumentDOM, bbPageSetView, annotat
     events : {
         "mouseenter" : "highlightEvent",
         "mouseleave" : "highlightEvent",
-        "click" : "highlightEvent"
+        "click" : "highlightEvent",
+        "contextMenu" : "highlightEvent"
     },
 
     initialize : function (options) {
