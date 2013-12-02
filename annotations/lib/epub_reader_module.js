@@ -762,7 +762,7 @@ var EpubReaderModule = function(readerBoundElement, epubSpineInfo, viewerSetting
         }, this);        
     },
 
-    addSelectionHighlight : function (id, type) {
+    addSelectionHighlight : function (id, type, styles) {
 
         var contentDocCFIComponent;
         var packageDocCFIComponent;
@@ -770,7 +770,7 @@ var EpubReaderModule = function(readerBoundElement, epubSpineInfo, viewerSetting
         var spineIndex;
         var currentViewInfo = this.reader.getCurrentPagesViewInfo();
         spineIndex = currentViewInfo.spineIndexes[0]; // Assumes reflowable
-        annotationInfo = currentViewInfo.pagesView.addSelectionHighlight(id, type);
+        annotationInfo = currentViewInfo.pagesView.addSelectionHighlight(id, type, styles);
 
         // Generate a package document cfi component and construct the whole cfi, append
         contentDocCFIComponent = annotationInfo.CFI;
@@ -920,8 +920,8 @@ var EpubReaderModule = function(readerBoundElement, epubSpineInfo, viewerSetting
             epubReaderView.customize(customProperty, styleNameOrCSS);
             return this;
         },
-        addSelectionHighlight : function (id, type) { 
-            return epubReaderView.addSelectionHighlight(id, type); 
+        addSelectionHighlight : function (id, type, styles) { 
+            return epubReaderView.addSelectionHighlight(id, type, styles); 
         },
         addSelectionBookmark : function (id, type) { 
             return epubReaderView.addSelectionBookmark(id, type); 

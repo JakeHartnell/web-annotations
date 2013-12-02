@@ -2060,8 +2060,8 @@ EpubReflowable.ReflowableCustomTheme = Backbone.Model.extend({
             reflowableView.customizeStyles(customElement, styleNameOrCSSObject);
             return this;
         },
-        addSelectionHighlight : function (id, type) { 
-            return reflowableView.annotations.addSelectionHighlight(id, type); 
+        addSelectionHighlight : function (id, type, styles) { 
+            return reflowableView.annotations.addSelectionHighlight(id, type, styles); 
         },
         addSelectionBookmark : function (id, type) { 
             return reflowableView.annotations.addSelectionBookmark(id, type); 

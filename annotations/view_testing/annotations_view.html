@@ -21,16 +21,24 @@
                 var that = this;
                 epubViewer = initializationTest("2");
 
+                var randomHex = function() {
+                    return '#'+Math.floor(Math.random()*16777215).toString(16);
+                };
+
                 epubViewer.on("epubLoaded", function () { 
 
                     epubViewer.showSpineItem(1, function () { console.log("showed first page"); });
 
                     $("#highlight").on("click", function () {
-                        epubViewer.addSelectionHighlight("1", "highlight");
+                        epubViewer.addSelectionHighlight(_.uniqueId(), "highlight", {
+                            fill_color: randomHex(),
+                        });
                     });
 
                     $("#underline").on("click", function () {
-                        epubViewer.addSelectionHighlight("000912", "underline");
+                        epubViewer.addSelectionHighlight(_.uniqueId(), "underline", {
+                            fill_color: randomHex(),
+                        });
                     });
 
                     $("#comment").on("click", function () {

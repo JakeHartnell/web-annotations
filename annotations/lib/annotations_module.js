@@ -254,6 +254,7 @@ var EpubAnnotationsModule = function (contentDocumentDOM, bbPageSetView, annotat
                 left : highlightLeft + that.get("offsetLeftAddition"),
                 height : highlightHeight,
                 width : highlightWidth,
+                styles : that.get('styles'),
                 highlightGroupCallback : that.highlightGroupCallback,
                 callbackContext : that
             });
@@ -387,6 +388,7 @@ var EpubAnnotationsModule = function (contentDocumentDOM, bbPageSetView, annotat
                 left : underlineLeft + that.get("offsetLeftAddition"),
                 height : underlineHeight,
                 width : underlineWidth,
+                styles : that.get("styles"),
                 underlineGroupCallback : that.underlineGroupCallback,
                 callbackContext : that
             });
@@ -520,7 +522,7 @@ var EpubAnnotationsModule = function (contentDocumentDOM, bbPageSetView, annotat
 
 
 
-    addHighlight : function (CFI, id, type) {
+    addHighlight : function (CFI, id, type, styles) {
 
         var CFIRangeInfo;
         var range;
@@ -555,10 +557,10 @@ var EpubAnnotationsModule = function (contentDocumentDOM, bbPageSetView, annotat
             leftAddition = -this.getPaginationLeftOffset();
 
             if (type === "highlight") {
-                this.annotations.addHighlight(CFI, selectionInfo.selectedElements, id, 0, leftAddition, CFIRangeInfo.startElement, CFIRangeInfo.endElement);
+                this.annotations.addHighlight(CFI, selectionInfo.selectedElements, id, 0, leftAddition, CFIRangeInfo.startElement, CFIRangeInfo.endElement, styles);
             }
             else if (type === "underline") {
-                this.annotations.addUnderline(CFI, selectionInfo.selectedElements, id, 0, leftAddition);
+                this.annotations.addUnderline(CFI, selectionInfo.selectedElements, id, 0, leftAddition, styles);
             }
 
             return {
@@ -657,8 +659,7 @@ var EpubAnnotationsModule = function (contentDocumentDOM, bbPageSetView, annotat
     /// TODODM refactor thhis using getCurrentSelectionCFI (above)
 
 
-    addSelectionHighlight : function (id, type) {
-
+    addSelectionHighlight : function (id, type, styles) {
         var arbitraryPackageDocCFI = "/99!"
         var generatedContentDocCFI;
         var CFI;
@@ -671,11 +672,12 @@ var EpubAnnotationsModule = function (contentDocumentDOM, bbPageSetView, annotat
             selectionInfo = this.getSelectionInfo(currentSelection);
             generatedContentDocCFI = selectionInfo.CFI;
             CFI = "epubcfi(" + arbitraryPackageDocCFI + generatedContentDocCFI + ")";
+
             if (type === "highlight") {
-                annotationInfo = this.addHighlight(CFI, id, type);
+                annotationInfo = this.addHighlight(CFI, id, type, styles);
             }
             else if (type === "underline") {
-                annotationInfo = this.addHighlight(CFI, id, type);
+                annotationInfo = this.addHighlight(CFI, id, type, styles);
             }
 
             // Rationale: The annotationInfo object returned from .addBookmark(...) contains the same value of 
@@ -1108,7 +1110,7 @@ var EpubAnnotationsModule = function (contentDocumentDOM, bbPageSetView, annotat
                              this.set("highlights", highlights);
     },
 
-    addHighlight : function (CFI, highlightedTextNodes, annotationId, offsetTop, offsetLeft, startMarker, endMarker) {
+    addHighlight : function (CFI, highlightedTextNodes, annotationId, offsetTop, offsetLeft, startMarker, endMarker, styles) {
         if (!offsetTop) {
             offsetTop = this.get("offsetTopAddition");
         }
@@ -1124,6 +1126,7 @@ var EpubAnnotationsModule = function (contentDocumentDOM, bbPageSetView, annotat
             selectedNodes : highlightedTextNodes,
             offsetTopAddition : offsetTop,
             offsetLeftAddition : offsetLeft,
+            styles : styles,
             id : annotationId,
             bbPageSetView : this.get("bbPageSetView")
         });
@@ -1133,7 +1136,7 @@ var EpubAnnotationsModule = function (contentDocumentDOM, bbPageSetView, annotat
         highlightGroup.renderHighlights(this.get("readerBoundElement"));
     },
 
-    addUnderline : function (CFI, underlinedTextNodes, annotationId, offsetTop, offsetLeft) {
+    addUnderline : function (CFI, underlinedTextNodes, annotationId, offsetTop, offsetLeft, styles) {
 
         if (!offsetTop) {
             offsetTop = this.get("offsetTopAddition");
@@ -1150,6 +1153,7 @@ var EpubAnnotationsModule = function (contentDocumentDOM, bbPageSetView, annotat
             selectedNodes : underlinedTextNodes,
             offsetTopAddition : offsetTop,
             offsetLeftAddition : offsetLeft,
+            styles : styles,
             id : annotationId,
             bbPageSetView : this.get("bbPageSetView")
         });
@@ -1305,6 +1309,7 @@ var EpubAnnotationsModule = function (contentDocumentDOM, bbPageSetView, annotat
             left : options.left,
             height : options.height,
             width : options.width,
+            styles :options.styles,
             highlightGroupCallback : options.highlightGroupCallback,
             callbackContext : options.callbackContext
         });
@@ -1329,14 +1334,15 @@ var EpubAnnotationsModule = function (contentDocumentDOM, bbPageSetView, annotat
 
     setCSS : function () {
 
-        this.$el.css({ 
+        var styles = this.highlight.get("styles") || {};
+
+        this.$el.css({
             "top" : this.highlight.get("top") + "px",
             "left" : this.highlight.get("left") + "px",
             "height" : this.highlight.get("height") + "px",
             "width" : this.highlight.get("width") + "px",
-            "position" : "absolute"
+            "background-color" : styles.fill_color || "normal",
         });
-        this.$el.addClass("highlight");
     },
 
     setBaseHighlight : function () {
@@ -1380,6 +1386,7 @@ var EpubAnnotationsModule = function (contentDocumentDOM, bbPageSetView, annotat
             left : options.left,
             height : options.height,
             width : options.width,
+            styles : options.styles,
             underlineGroupCallback : options.underlineGroupCallback,
             callbackContext : options.callbackContext
         });
@@ -1407,25 +1414,18 @@ var EpubAnnotationsModule = function (contentDocumentDOM, bbPageSetView, annotat
 
     setCSS : function () {
 
+        var styles = this.underline.get("styles") || {};
+
         this.$el.css({ 
             "top" : this.underline.get("top") + "px",
             "left" : this.underline.get("left") + "px",
             "height" : this.underline.get("height") + "px",
             "width" : this.underline.get("width") + "px",
-            "position" : "absolute",
-        });
-
-        // Transparent part
-        this.$transparentElement.css({
-            "position" : "relative",
-            "background-color" : "transparent",
-            "height" : "85%"
         });
 
         // Underline part
         this.$underlineElement.css({
-            "position" : "relative",
-            "height" : "15%"
+            "background-color" : styles.fill_color || "normal",
         });
 
         this.$underlineElement.addClass("underline");
@@ -1517,8 +1517,8 @@ EpubAnnotations.ImageAnnotation = Backbone.Model.extend({
     // Description: The public interface
     return {
 
-        addSelectionHighlight : function (id, type) { 
-            return reflowableAnnotations.addSelectionHighlight(id, type); 
+        addSelectionHighlight : function (id, type, styles) { 
+            return reflowableAnnotations.addSelectionHighlight(id, type, styles); 
         },
         addSelectionBookmark : function (id, type) { 
             return reflowableAnnotations.addSelectionBookmark(id, type); 
