@@ -19,6 +19,7 @@ EpubAnnotations.UnderlineView = Backbone.View.extend({
             left : options.left,
             height : options.height,
             width : options.width,
+            styles : options.styles,
             underlineGroupCallback : options.underlineGroupCallback,
             callbackContext : options.callbackContext
         });
@@ -45,28 +46,21 @@ EpubAnnotations.UnderlineView = Backbone.View.extend({
     },
 
     setCSS : function () {
-
+        var styles = this.underline.get("styles") || {};
+        
         this.$el.css({ 
             "top" : this.underline.get("top") + "px",
             "left" : this.underline.get("left") + "px",
             "height" : this.underline.get("height") + "px",
             "width" : this.underline.get("width") + "px",
-            "position" : "absolute",
-        });
-
-        // Transparent part
-        this.$transparentElement.css({
-            "position" : "relative",
-            "background-color" : "transparent",
-            "height" : "85%"
         });
 
         // Underline part
         this.$underlineElement.css({
-            "position" : "relative",
-            "height" : "15%"
+            "background-color" : styles.fill_color || "normal",
         });
 
+        
         this.$underlineElement.addClass("underline");
     },
 

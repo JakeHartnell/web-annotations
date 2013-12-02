@@ -42,7 +42,7 @@ EpubAnnotations.ReflowableAnnotations = Backbone.Model.extend({
 
 
 
-    addHighlight : function (CFI, id, type) {
+    addHighlight : function (CFI, id, type, styles) {
 
         var CFIRangeInfo;
         var range;
@@ -77,10 +77,10 @@ EpubAnnotations.ReflowableAnnotations = Backbone.Model.extend({
             leftAddition = -this.getPaginationLeftOffset();
 
             if (type === "highlight") {
-                this.annotations.addHighlight(CFI, selectionInfo.selectedElements, id, 0, leftAddition, CFIRangeInfo.startElement, CFIRangeInfo.endElement);
+                this.annotations.addHighlight(CFI, selectionInfo.selectedElements, id, 0, leftAddition, CFIRangeInfo.startElement, CFIRangeInfo.endElement, styles);
             }
             else if (type === "underline") {
-                this.annotations.addUnderline(CFI, selectionInfo.selectedElements, id, 0, leftAddition);
+                this.annotations.addUnderline(CFI, selectionInfo.selectedElements, id, 0, leftAddition, styles);
             }
 
             return {
@@ -179,7 +179,7 @@ EpubAnnotations.ReflowableAnnotations = Backbone.Model.extend({
     /// TODODM refactor thhis using getCurrentSelectionCFI (above)
 
 
-    addSelectionHighlight : function (id, type) {
+    addSelectionHighlight : function (id, type, styles) {
 
         var arbitraryPackageDocCFI = "/99!"
         var generatedContentDocCFI;
@@ -194,10 +194,10 @@ EpubAnnotations.ReflowableAnnotations = Backbone.Model.extend({
             generatedContentDocCFI = selectionInfo.CFI;
             CFI = "epubcfi(" + arbitraryPackageDocCFI + generatedContentDocCFI + ")";
             if (type === "highlight") {
-                annotationInfo = this.addHighlight(CFI, id, type);
+                annotationInfo = this.addHighlight(CFI, id, type, styles);
             }
             else if (type === "underline") {
-                annotationInfo = this.addHighlight(CFI, id, type);
+                annotationInfo = this.addHighlight(CFI, id, type, styles);
             }
 
             // Rationale: The annotationInfo object returned from .addBookmark(...) contains the same value of 

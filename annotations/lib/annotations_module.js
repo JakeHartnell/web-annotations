@@ -660,6 +660,7 @@ var EpubAnnotationsModule = function (contentDocumentDOM, bbPageSetView, annotat
 
 
     addSelectionHighlight : function (id, type, styles) {
+
         var arbitraryPackageDocCFI = "/99!"
         var generatedContentDocCFI;
         var CFI;
@@ -672,7 +673,6 @@ var EpubAnnotationsModule = function (contentDocumentDOM, bbPageSetView, annotat
             selectionInfo = this.getSelectionInfo(currentSelection);
             generatedContentDocCFI = selectionInfo.CFI;
             CFI = "epubcfi(" + arbitraryPackageDocCFI + generatedContentDocCFI + ")";
-
             if (type === "highlight") {
                 annotationInfo = this.addHighlight(CFI, id, type, styles);
             }
@@ -1126,7 +1126,7 @@ var EpubAnnotationsModule = function (contentDocumentDOM, bbPageSetView, annotat
             selectedNodes : highlightedTextNodes,
             offsetTopAddition : offsetTop,
             offsetLeftAddition : offsetLeft,
-            styles : styles,
+            styles: styles, 
             id : annotationId,
             bbPageSetView : this.get("bbPageSetView")
         });
@@ -1153,7 +1153,7 @@ var EpubAnnotationsModule = function (contentDocumentDOM, bbPageSetView, annotat
             selectedNodes : underlinedTextNodes,
             offsetTopAddition : offsetTop,
             offsetLeftAddition : offsetLeft,
-            styles : styles,
+            styles: styles,
             id : annotationId,
             bbPageSetView : this.get("bbPageSetView")
         });
@@ -1309,7 +1309,7 @@ var EpubAnnotationsModule = function (contentDocumentDOM, bbPageSetView, annotat
             left : options.left,
             height : options.height,
             width : options.width,
-            styles :options.styles,
+            styles: options.styles,
             highlightGroupCallback : options.highlightGroupCallback,
             callbackContext : options.callbackContext
         });
@@ -1335,8 +1335,8 @@ var EpubAnnotationsModule = function (contentDocumentDOM, bbPageSetView, annotat
     setCSS : function () {
 
         var styles = this.highlight.get("styles") || {};
-
-        this.$el.css({
+        
+        this.$el.css({ 
             "top" : this.highlight.get("top") + "px",
             "left" : this.highlight.get("left") + "px",
             "height" : this.highlight.get("height") + "px",
@@ -1365,6 +1365,7 @@ var EpubAnnotationsModule = function (contentDocumentDOM, bbPageSetView, annotat
         highlightGroupContext.highlightGroupCallback(event);
     }
 });
+
     EpubAnnotations.UnderlineView = Backbone.View.extend({
 
     el : "<div class='underline-range'> \
@@ -1413,9 +1414,8 @@ var EpubAnnotationsModule = function (contentDocumentDOM, bbPageSetView, annotat
     },
 
     setCSS : function () {
-
         var styles = this.underline.get("styles") || {};
-
+        
         this.$el.css({ 
             "top" : this.underline.get("top") + "px",
             "left" : this.underline.get("left") + "px",
@@ -1428,6 +1428,7 @@ var EpubAnnotationsModule = function (contentDocumentDOM, bbPageSetView, annotat
             "background-color" : styles.fill_color || "normal",
         });
 
+        
         this.$underlineElement.addClass("underline");
     },
 
@@ -1451,6 +1452,7 @@ var EpubAnnotationsModule = function (contentDocumentDOM, bbPageSetView, annotat
         this.$underlineElement.removeClass("underline");
     },
 });
+
     // Rationale: An image annotation does NOT have a view, as we don't know the state of an image element within an EPUB; it's entirely
 //   possible that an EPUB image element could have a backbone view associated with it already, which would cause problems if we 
 //   tried to associate another backbone view. As such, this model modifies CSS properties for an annotated image element.

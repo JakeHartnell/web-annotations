@@ -172,7 +172,7 @@ EpubAnnotations.Annotations = Backbone.Model.extend({
                              this.set("highlights", highlights);
     },
 
-    addHighlight : function (CFI, highlightedTextNodes, annotationId, offsetTop, offsetLeft, startMarker, endMarker) {
+    addHighlight : function (CFI, highlightedTextNodes, annotationId, offsetTop, offsetLeft, startMarker, endMarker, styles) {
         if (!offsetTop) {
             offsetTop = this.get("offsetTopAddition");
         }
@@ -188,6 +188,7 @@ EpubAnnotations.Annotations = Backbone.Model.extend({
             selectedNodes : highlightedTextNodes,
             offsetTopAddition : offsetTop,
             offsetLeftAddition : offsetLeft,
+            styles: styles, 
             id : annotationId,
             bbPageSetView : this.get("bbPageSetView")
         });
@@ -197,7 +198,7 @@ EpubAnnotations.Annotations = Backbone.Model.extend({
         highlightGroup.renderHighlights(this.get("readerBoundElement"));
     },
 
-    addUnderline : function (CFI, underlinedTextNodes, annotationId, offsetTop, offsetLeft) {
+    addUnderline : function (CFI, underlinedTextNodes, annotationId, offsetTop, offsetLeft, styles) {
 
         if (!offsetTop) {
             offsetTop = this.get("offsetTopAddition");
@@ -214,6 +215,7 @@ EpubAnnotations.Annotations = Backbone.Model.extend({
             selectedNodes : underlinedTextNodes,
             offsetTopAddition : offsetTop,
             offsetLeftAddition : offsetLeft,
+            styles: styles,
             id : annotationId,
             bbPageSetView : this.get("bbPageSetView")
         });

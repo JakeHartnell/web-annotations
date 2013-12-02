@@ -26,8 +26,8 @@ var EpubAnnotationsModule = function (contentDocumentDOM, bbPageSetView, annotat
     // Description: The public interface
     return {
 
-        addSelectionHighlight : function (id, type) { 
-            return reflowableAnnotations.addSelectionHighlight(id, type); 
+        addSelectionHighlight : function (id, type, styles) { 
+            return reflowableAnnotations.addSelectionHighlight(id, type, styles); 
         },
         addSelectionBookmark : function (id, type) { 
             return reflowableAnnotations.addSelectionBookmark(id, type); 

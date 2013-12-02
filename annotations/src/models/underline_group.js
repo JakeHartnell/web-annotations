@@ -72,6 +72,7 @@ EpubAnnotations.UnderlineGroup = Backbone.Model.extend({
                 left : underlineLeft + that.get("offsetLeftAddition"),
                 height : underlineHeight,
                 width : underlineWidth,
+                styles : that.get("styles"),
                 underlineGroupCallback : that.underlineGroupCallback,
                 callbackContext : that
             });

@@ -72,6 +72,7 @@ EpubAnnotations.HighlightGroup = Backbone.Model.extend({
                 left : highlightLeft + that.get("offsetLeftAddition"),
                 height : highlightHeight,
                 width : highlightWidth,
+                styles : that.get('styles'),
                 highlightGroupCallback : that.highlightGroupCallback,
                 callbackContext : that
             });

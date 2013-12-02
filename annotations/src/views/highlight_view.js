@@ -16,6 +16,7 @@ EpubAnnotations.HighlightView = Backbone.View.extend({
             left : options.left,
             height : options.height,
             width : options.width,
+            styles: options.styles,
             highlightGroupCallback : options.highlightGroupCallback,
             callbackContext : options.callbackContext
         });
@@ -40,14 +41,15 @@ EpubAnnotations.HighlightView = Backbone.View.extend({
 
     setCSS : function () {
 
+        var styles = this.highlight.get("styles") || {};
+        
         this.$el.css({ 
             "top" : this.highlight.get("top") + "px",
             "left" : this.highlight.get("left") + "px",
             "height" : this.highlight.get("height") + "px",
             "width" : this.highlight.get("width") + "px",
-            "position" : "absolute"
+            "background-color" : styles.fill_color || "normal",
         });
-        this.$el.addClass("highlight");
     },
 
     setBaseHighlight : function () {
