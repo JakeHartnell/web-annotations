@@ -1589,8 +1589,8 @@ EpubAnnotations.ImageAnnotation = Backbone.Model.extend({
         addSelectionImageAnnotation : function (id) {
             return reflowableAnnotations.addSelectionImageAnnotation(id);
         },
-        addHighlight : function (CFI, id, type) { 
-            return reflowableAnnotations.addHighlight(CFI, id, type); 
+        addHighlight : function (CFI, id, type, styles) { 
+            return reflowableAnnotations.addHighlight(CFI, id, type, styles); 
         },
         addBookmark : function (CFI, id, type) { 
             return reflowableAnnotations.addBookmark(CFI, id, type);
