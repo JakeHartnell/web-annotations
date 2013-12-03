@@ -208,7 +208,7 @@ var EpubAnnotationsModule = function (contentDocumentDOM, bbPageSetView, annotat
 
 
         // Trigger this event on each of the highlight views (except triggering event)
-        if (event.type === "contextMenu") {
+        if (event.type === "contextmenu") {
             that.get("bbPageSetView").trigger("annotationRightClicked", "highlight", that.get("CFI"), that.get("id"), event);
             return;
         }
@@ -311,6 +311,16 @@ var EpubAnnotationsModule = function (contentDocumentDOM, bbPageSetView, annotat
             type : "highlight",
             CFI : this.get("CFI")
         };
+    },
+
+    setStyles : function (styles) {
+        var highlightViews = this.get('highlightViews');
+
+        this.set({styles : styles});
+
+        _.each(highlightViews, function(view, index) {
+            view.setStyles(styles);
+        });
     }
 });
 
@@ -445,7 +455,18 @@ var EpubAnnotationsModule = function (contentDocumentDOM, bbPageSetView, annotat
             type : "underline",
             CFI : this.get("CFI")
         };
-    }
+    },
+
+    setStyles : function (styles) {
+        
+        var underlineViews = this.get('underlineViews');
+
+        this.set({styles : styles});
+
+        _.each(underlineViews, function(view, index) {
+            view.setStyles(styles);
+        });
+    },
 });
 
     EpubAnnotations.Bookmark = Backbone.Model.extend({
@@ -759,6 +780,13 @@ var EpubAnnotationsModule = function (contentDocumentDOM, bbPageSetView, annotat
         else {
             throw new Error("Nothing selected");
         }
+    },
+
+    updateAnnotationView : function (id, styles) {
+
+        var annotationViews = this.annotations.updateAnnotationView(id, styles);
+
+        return annotationViews;
     },
 
     // ------------------------------------------------------------------------------------ //
@@ -1186,6 +1214,14 @@ var EpubAnnotationsModule = function (contentDocumentDOM, bbPageSetView, annotat
         imageAnnotation.render();
     },
 
+    updateAnnotationView : function (id, styles) {
+        var annotationViews = this.get("annotationHash")[id];
+
+        annotationViews.setStyles(styles);
+
+        return annotationViews;
+    },
+
     // REFACTORING CANDIDATE: Some kind of hash lookup would be more efficient here, might want to 
     //   change the implementation of the annotations as an array
     validateAnnotationId : function (id) {
@@ -1307,7 +1343,7 @@ var EpubAnnotationsModule = function (contentDocumentDOM, bbPageSetView, annotat
         "mouseenter" : "highlightEvent",
         "mouseleave" : "highlightEvent",
         "click" : "highlightEvent",
-        "contextMenu" : "highlightEvent"
+        "contextmenu" : "highlightEvent"
     },
 
     initialize : function (options) {
@@ -1339,6 +1375,14 @@ var EpubAnnotationsModule = function (contentDocumentDOM, bbPageSetView, annotat
             width : width
         });
         this.setCSS();
+    },
+
+    setStyles : function (styles) {
+
+        this.highlight.set({
+            styles : styles,
+        });
+        this.render();
     },
 
     setCSS : function () {
@@ -1420,6 +1464,14 @@ var EpubAnnotationsModule = function (contentDocumentDOM, bbPageSetView, annotat
             width : width
         });
         this.setCSS();
+    },
+
+    setStyles : function (styles) {
+
+        this.underline.set({
+            styles : styles,
+        });
+        this.render();
     },
 
     setCSS : function () {
@@ -1545,6 +1597,9 @@ EpubAnnotations.ImageAnnotation = Backbone.Model.extend({
         },
         addImageAnnotation : function (CFI, id) { 
             return reflowableAnnotations.addImageAnnotation(CFI, id); 
+        },
+        updateAnnotationView : function (id, styles) {
+            return reflowableAnnotations.updateAnnotationView(id, styles);
         },
         redraw : function () { 
             return reflowableAnnotations.redraw(); 

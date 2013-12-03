@@ -44,6 +44,9 @@ var EpubAnnotationsModule = function (contentDocumentDOM, bbPageSetView, annotat
         addImageAnnotation : function (CFI, id) { 
             return reflowableAnnotations.addImageAnnotation(CFI, id); 
         },
+        updateAnnotationView : function (id, styles) {
+            return reflowableAnnotations.updateAnnotationView(id, styles);
+        },
         redraw : function () { 
             return reflowableAnnotations.redraw(); 
         },

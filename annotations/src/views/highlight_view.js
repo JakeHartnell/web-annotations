@@ -40,6 +40,14 @@ EpubAnnotations.HighlightView = Backbone.View.extend({
         this.setCSS();
     },
 
+    setStyles : function (styles) {
+
+        this.highlight.set({
+            styles : styles,
+        });
+        this.render();
+    },
+
     setCSS : function () {
 
         var styles = this.highlight.get("styles") || {};

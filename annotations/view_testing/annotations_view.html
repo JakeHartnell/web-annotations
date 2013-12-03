@@ -82,6 +82,9 @@
                     });
 
                     epubViewer.on("annotationClicked", function (type, CFI, id) {
+                        epubViewer.updateAnnotationView(id, {
+                            fill_color: randomHex(),
+                        });
                         console.log("Annotation clicked; type: " + type + " CFI: " + CFI + " Id: " + id);
                     });
 

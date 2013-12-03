@@ -273,6 +273,13 @@ EpubAnnotations.ReflowableAnnotations = Backbone.Model.extend({
         }
     },
 
+    updateAnnotationView : function (id, styles) {
+
+        var annotationViews = this.annotations.updateAnnotationView(id, styles);
+
+        return annotationViews;
+    },
+
     // ------------------------------------------------------------------------------------ //
     //  "PRIVATE" HELPERS                                                                   //
     // ------------------------------------------------------------------------------------ //

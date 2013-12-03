@@ -129,5 +129,15 @@ EpubAnnotations.HighlightGroup = Backbone.Model.extend({
             type : "highlight",
             CFI : this.get("CFI")
         };
+    },
+
+    setStyles : function (styles) {
+        var highlightViews = this.get('highlightViews');
+
+        this.set({styles : styles});
+
+        _.each(highlightViews, function(view, index) {
+            view.setStyles(styles);
+        });
     }
 });

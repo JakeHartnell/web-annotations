@@ -2077,6 +2077,9 @@ EpubReflowable.ReflowableCustomTheme = Backbone.Model.extend({
         },
         addImageAnnotation : function (CFI, id) { 
             return reflowableView.annotations.addImageAnnotation(CFI, id); 
-        }
+        },
+        updateAnnotationView : function (id, styles) {
+            return reflowableView.annotations.updateAnnotationView(id, styles);
+        },
     };
 };

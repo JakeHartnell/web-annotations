@@ -45,6 +45,14 @@ EpubAnnotations.UnderlineView = Backbone.View.extend({
         this.setCSS();
     },
 
+    setStyles : function (styles) {
+
+        this.underline.set({
+            styles : styles,
+        });
+        this.render();
+    },
+
     setCSS : function () {
         var styles = this.underline.get("styles") || {};
         

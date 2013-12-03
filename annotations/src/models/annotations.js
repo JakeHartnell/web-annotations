@@ -240,6 +240,14 @@ EpubAnnotations.Annotations = Backbone.Model.extend({
         imageAnnotation.render();
     },
 
+    updateAnnotationView : function (id, styles) {
+        var annotationViews = this.get("annotationHash")[id];
+
+        annotationViews.setStyles(styles);
+
+        return annotationViews;
+    },
+
     // REFACTORING CANDIDATE: Some kind of hash lookup would be more efficient here, might want to 
     //   change the implementation of the annotations as an array
     validateAnnotationId : function (id) {

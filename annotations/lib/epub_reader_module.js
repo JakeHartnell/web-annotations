@@ -865,7 +865,15 @@ var EpubReaderModule = function(readerBoundElement, epubSpineInfo, viewerSetting
                 callback.call(callbackContext, error, undefined, undefined);
             }
         });
-    },    
+    },
+
+    updateAnnotationView : function (id, styles) {
+
+        var currentViewInfo = this.reader.getCurrentPagesViewInfo();
+        var annotationViews = currentViewInfo.pagesView.updateAnnotationView(id, styles);
+
+        return annotationViews;
+    },
 });
 
 
@@ -937,6 +945,9 @@ var EpubReaderModule = function(readerBoundElement, epubSpineInfo, viewerSetting
         },
         addImageAnnotation : function (CFI, id, callback, callbackContext) { 
             return epubReaderView.addImageAnnotation(CFI, id, callback, callbackContext); 
-        }
+        },
+        updateAnnotationView : function (id, styles) {
+            return epubReaderView.updateAnnotationView(id, styles);
+        },
     };
 };
