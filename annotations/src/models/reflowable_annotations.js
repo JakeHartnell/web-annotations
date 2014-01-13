@@ -18,6 +18,9 @@ EpubAnnotations.ReflowableAnnotations = Backbone.Model.extend({
         var self = this;
         epubWindow.on("mouseup", function(event) {
             var range = self.getCurrentSelectionRange();
+            if (range === undefined) {
+                return;
+            }
             if (range.startOffset - range.endOffset) {
                 self.annotations.get("bbPageSetView").trigger("textSelectionEvent", event);
             }
