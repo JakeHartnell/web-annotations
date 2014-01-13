@@ -1591,7 +1591,7 @@ EpubAnnotations.ImageAnnotation = Backbone.Model.extend({
     var reflowableAnnotations = new EpubAnnotations.ReflowableAnnotations({
         contentDocumentDOM : contentDocumentDOM, 
         bbPageSetView : bbPageSetView,
-        annotationCSSUrl : annotationsCSSUrl || "/css/annotations.css"
+        annotationCSSUrl : annotationCSSUrl || "/css/annotations.css"
     });
 
     // Description: The public interface
