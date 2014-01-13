@@ -190,7 +190,7 @@ var EpubAnnotationsModule = function (contentDocumentDOM, bbPageSetView, annotat
     },
 
     initialize : function (attributes, options) {
-
+        this.set("scale", attributes.scale);
         this.constructHighlightViews();
     },
 
@@ -249,12 +249,14 @@ var EpubAnnotationsModule = function (contentDocumentDOM, bbPageSetView, annotat
         inferrer = new EpubAnnotations.TextLineInferrer();
         inferredLines = inferrer.inferLines(rectList);
 
+        var scale = this.get("scale");
+
         _.each(inferredLines, function (line, index) {
 
-            var highlightTop = line.startTop;
-            var highlightLeft = line.left;
-            var highlightHeight = line.avgHeight;
-            var highlightWidth = line.width;
+            var highlightTop = line.startTop / scale;;
+            var highlightLeft = line.left / scale;;
+            var highlightHeight = line.avgHeight / scale;
+            var highlightWidth = line.width / scale;;
 
             var highlightView = new EpubAnnotations.HighlightView({
                 CFI : that.get("CFI"),
@@ -516,6 +518,7 @@ var EpubAnnotationsModule = function (contentDocumentDOM, bbPageSetView, annotat
             offsetTopAddition : 0, 
             offsetLeftAddition : 0, 
             readerBoundElement : $("html", this.get("contentDocumentDOM"))[0],
+            scale: 0,
             bbPageSetView : this.get("bbPageSetView")
         });
         // inject annotation CSS into iframe 
@@ -565,6 +568,12 @@ var EpubAnnotationsModule = function (contentDocumentDOM, bbPageSetView, annotat
         var startMarkerHtml = this.getRangeStartMarker(CFI, id);
         var endMarkerHtml = this.getRangeEndMarker(CFI, id);
 
+        // TODO webkit specific?
+        var $html = $(this.get("contentDocumentDOM"));
+        var matrix = $('html', $html).css('-webkit-transform');
+        var scale = new WebKitCSSMatrix(matrix).a;
+        this.set("scale", scale);
+
         try {
             CFIRangeInfo = this.epubCFI.injectRangeElements(
                 CFI,
@@ -589,6 +598,7 @@ var EpubAnnotationsModule = function (contentDocumentDOM, bbPageSetView, annotat
             leftAddition = -this.getPaginationLeftOffset();
 
             if (type === "highlight") {
+                this.annotations.set('scale', this.get('scale'));
                 this.annotations.addHighlight(CFI, selectionInfo.selectedElements, id, 0, leftAddition, CFIRangeInfo.startElement, CFIRangeInfo.endElement, styles);
             }
             else if (type === "underline") {
@@ -1124,6 +1134,9 @@ var EpubAnnotationsModule = function (contentDocumentDOM, bbPageSetView, annotat
         var highlights = this.get("highlights");
         var markers = this.get("markers");
 
+        if (!markers[annotationId])
+            return;
+
         var startMarker =  markers[annotationId].startMarker;
         var endMarker = markers[annotationId].endMarker;
 
@@ -1167,7 +1180,8 @@ var EpubAnnotationsModule = function (contentDocumentDOM, bbPageSetView, annotat
             offsetLeftAddition : offsetLeft,
             styles: styles, 
             id : annotationId,
-            bbPageSetView : this.get("bbPageSetView")
+            bbPageSetView : this.get("bbPageSetView"),
+            scale: this.get("scale")
         });
         this.get("annotationHash")[annotationId] = highlightGroup;
         this.get("highlights").push(highlightGroup);

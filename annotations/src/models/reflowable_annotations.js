@@ -7,6 +7,7 @@ EpubAnnotations.ReflowableAnnotations = Backbone.Model.extend({
             offsetTopAddition : 0, 
             offsetLeftAddition : 0, 
             readerBoundElement : $("html", this.get("contentDocumentDOM"))[0],
+            scale: 0,
             bbPageSetView : this.get("bbPageSetView")
         });
         // inject annotation CSS into iframe 
@@ -56,6 +57,12 @@ EpubAnnotations.ReflowableAnnotations = Backbone.Model.extend({
         var startMarkerHtml = this.getRangeStartMarker(CFI, id);
         var endMarkerHtml = this.getRangeEndMarker(CFI, id);
 
+        // TODO webkit specific?
+        var $html = $(this.get("contentDocumentDOM"));
+        var matrix = $('html', $html).css('-webkit-transform');
+        var scale = new WebKitCSSMatrix(matrix).a;
+        this.set("scale", scale);
+
         try {
             CFIRangeInfo = this.epubCFI.injectRangeElements(
                 CFI,
@@ -80,6 +87,7 @@ EpubAnnotations.ReflowableAnnotations = Backbone.Model.extend({
             leftAddition = -this.getPaginationLeftOffset();
 
             if (type === "highlight") {
+                this.annotations.set('scale', this.get('scale'));
                 this.annotations.addHighlight(CFI, selectionInfo.selectedElements, id, 0, leftAddition, CFIRangeInfo.startElement, CFIRangeInfo.endElement, styles);
             }
             else if (type === "underline") {

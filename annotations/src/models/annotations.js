@@ -147,6 +147,9 @@ EpubAnnotations.Annotations = Backbone.Model.extend({
         var highlights = this.get("highlights");
         var markers = this.get("markers");
 
+        if (!markers[annotationId])
+            return;
+
         var startMarker =  markers[annotationId].startMarker;
         var endMarker = markers[annotationId].endMarker;
 
@@ -190,7 +193,8 @@ EpubAnnotations.Annotations = Backbone.Model.extend({
             offsetLeftAddition : offsetLeft,
             styles: styles, 
             id : annotationId,
-            bbPageSetView : this.get("bbPageSetView")
+            bbPageSetView : this.get("bbPageSetView"),
+            scale: this.get("scale")
         });
         this.get("annotationHash")[annotationId] = highlightGroup;
         this.get("highlights").push(highlightGroup);

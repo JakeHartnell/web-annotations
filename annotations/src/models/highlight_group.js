@@ -8,7 +8,7 @@ EpubAnnotations.HighlightGroup = Backbone.Model.extend({
     },
 
     initialize : function (attributes, options) {
-
+        this.set("scale", attributes.scale);
         this.constructHighlightViews();
     },
 
@@ -67,12 +67,14 @@ EpubAnnotations.HighlightGroup = Backbone.Model.extend({
         inferrer = new EpubAnnotations.TextLineInferrer();
         inferredLines = inferrer.inferLines(rectList);
 
+        var scale = this.get("scale");
+
         _.each(inferredLines, function (line, index) {
 
-            var highlightTop = line.startTop;
-            var highlightLeft = line.left;
-            var highlightHeight = line.avgHeight;
-            var highlightWidth = line.width;
+            var highlightTop = line.startTop / scale;;
+            var highlightLeft = line.left / scale;;
+            var highlightHeight = line.avgHeight / scale;
+            var highlightWidth = line.width / scale;;
 
             var highlightView = new EpubAnnotations.HighlightView({
                 CFI : that.get("CFI"),
