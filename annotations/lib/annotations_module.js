@@ -527,6 +527,9 @@ var EpubAnnotationsModule = function (contentDocumentDOM, bbPageSetView, annotat
         var self = this;
         epubWindow.on("mouseup", function(event) {
             var range = self.getCurrentSelectionRange();
+            if (range === undefined) {
+                return;
+            }
             if (range.startOffset - range.endOffset) {
                 self.annotations.get("bbPageSetView").trigger("textSelectionEvent", event);
             }
@@ -1574,7 +1577,7 @@ EpubAnnotations.ImageAnnotation = Backbone.Model.extend({
     var reflowableAnnotations = new EpubAnnotations.ReflowableAnnotations({
         contentDocumentDOM : contentDocumentDOM, 
         bbPageSetView : bbPageSetView,
-        annotationCSSUrl : "/css/annotations.css"
+        annotationCSSUrl : annotationsCSSUrl || "/css/annotations.css"
     });
 
     // Description: The public interface

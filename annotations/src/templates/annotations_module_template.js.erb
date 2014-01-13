@@ -20,7 +20,7 @@ var EpubAnnotationsModule = function (contentDocumentDOM, bbPageSetView, annotat
     var reflowableAnnotations = new EpubAnnotations.ReflowableAnnotations({
         contentDocumentDOM : contentDocumentDOM, 
         bbPageSetView : bbPageSetView,
-        annotationCSSUrl : "/css/annotations.css"
+        annotationCSSUrl : annotationsCSSUrl || "/css/annotations.css"
     });
 
     // Description: The public interface
