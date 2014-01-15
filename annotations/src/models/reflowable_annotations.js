@@ -12,7 +12,12 @@ EpubAnnotations.ReflowableAnnotations = Backbone.Model.extend({
         });
         // inject annotation CSS into iframe 
 
-        this.injectAnnotationCSS(this.get("annotationCSSUrl"));
+        
+        var annotationCSSUrl = this.get("annotationCSSUrl");
+        if (annotationCSSUrl)
+        {
+            this.injectAnnotationCSS(annotationCSSUrl);
+        }
 
         // emit an event when user selects some text.
         var epubWindow = $(this.get("contentDocumentDOM"));
