@@ -435,8 +435,10 @@ EpubAnnotations.ReflowableAnnotations = Backbone.Model.extend({
         if (iframeDocument.getSelection) {
             currentSelection = iframeDocument.getSelection();
 
-            if (currentSelection && currentSelection.rangeCount) {
+            if (currentSelection && currentSelection.rangeCount && (currentSelection.anchorOffset !== currentSelection.focusOffset)) {
                 return currentSelection.getRangeAt(0);
+            }else{
+                return undefined;
             }
         }
         else if (iframeDocument.selection) {
