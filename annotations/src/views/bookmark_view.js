@@ -23,13 +23,8 @@ EpubAnnotations.BookmarkView = Backbone.View.extend({
 
     resetBookmark : function (offsetTop, offsetLeft) {
 
-        if (offsetTop) {
-            this.bookmark.set({ offsetTopAddition : offsetTop });
-        }
-
-        if (offsetLeft) {
-            this.bookmark.set({ offsetLeftAddition : offsetLeft });
-        }
+        this.bookmark.set({ offsetTopAddition : offsetTop });
+        this.bookmark.set({ offsetLeftAddition : offsetLeft });
         this.setCSS();
     },
 

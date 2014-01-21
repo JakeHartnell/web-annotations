@@ -83,13 +83,8 @@ EpubAnnotations.UnderlineGroup = Backbone.Model.extend({
 
     resetUnderlines : function (viewportElement, offsetTop, offsetLeft) {
 
-        if (offsetTop) {
-            this.set({ offsetTopAddition : offsetTop });
-        }
-        if (offsetLeft) {
-            this.set({ offsetLeftAddition : offsetLeft });
-        }
-
+        this.set({ offsetTopAddition : offsetTop });
+        this.set({ offsetLeftAddition : offsetLeft });
         this.destroyCurrentUnderlines();
         this.constructUnderlineViews();
         this.renderUnderlines(viewportElement);

@@ -92,14 +92,9 @@ EpubAnnotations.HighlightGroup = Backbone.Model.extend({
     },
 
     resetHighlights : function (viewportElement, offsetTop, offsetLeft) {
-
-        if (offsetTop) {
-            this.set({ offsetTopAddition : offsetTop });
-        }
-        if (offsetLeft) {
-            this.set({ offsetLeftAddition : offsetLeft });
-        }
-
+        
+        this.set({ offsetTopAddition : offsetTop });
+        this.set({ offsetLeftAddition : offsetLeft });
         this.destroyCurrentHighlights();
         this.constructHighlightViews();
         this.renderHighlights(viewportElement);
