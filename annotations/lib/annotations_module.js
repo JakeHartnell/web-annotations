@@ -274,14 +274,9 @@ var EpubAnnotationsModule = function (contentDocumentDOM, bbPageSetView, annotat
     },
 
     resetHighlights : function (viewportElement, offsetTop, offsetLeft) {
-
-        if (offsetTop) {
-            this.set({ offsetTopAddition : offsetTop });
-        }
-        if (offsetLeft) {
-            this.set({ offsetLeftAddition : offsetLeft });
-        }
-
+        
+        this.set({ offsetTopAddition : offsetTop });
+        this.set({ offsetLeftAddition : offsetLeft });
         this.destroyCurrentHighlights();
         this.constructHighlightViews();
         this.renderHighlights(viewportElement);
@@ -419,13 +414,8 @@ var EpubAnnotationsModule = function (contentDocumentDOM, bbPageSetView, annotat
 
     resetUnderlines : function (viewportElement, offsetTop, offsetLeft) {
 
-        if (offsetTop) {
-            this.set({ offsetTopAddition : offsetTop });
-        }
-        if (offsetLeft) {
-            this.set({ offsetLeftAddition : offsetLeft });
-        }
-
+        this.set({ offsetTopAddition : offsetTop });
+        this.set({ offsetLeftAddition : offsetLeft });
         this.destroyCurrentUnderlines();
         this.constructUnderlineViews();
         this.renderUnderlines(viewportElement);
@@ -1234,10 +1224,12 @@ var EpubAnnotationsModule = function (contentDocumentDOM, bbPageSetView, annotat
     },
 
     updateAnnotationView : function (id, styles) {
+
         var annotationViews = this.get("annotationHash")[id];
-
-        annotationViews.setStyles(styles);
-
+        
+        if (annotationViews) {
+            annotationViews.setStyles(styles);
+        }
         return annotationViews;
     },
 
@@ -1276,13 +1268,8 @@ var EpubAnnotationsModule = function (contentDocumentDOM, bbPageSetView, annotat
 
     resetBookmark : function (offsetTop, offsetLeft) {
 
-        if (offsetTop) {
-            this.bookmark.set({ offsetTopAddition : offsetTop });
-        }
-
-        if (offsetLeft) {
-            this.bookmark.set({ offsetLeftAddition : offsetLeft });
-        }
+        this.bookmark.set({ offsetTopAddition : offsetTop });
+        this.bookmark.set({ offsetLeftAddition : offsetLeft });
         this.setCSS();
     },
 
