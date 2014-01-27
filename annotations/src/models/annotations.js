@@ -245,12 +245,10 @@ EpubAnnotations.Annotations = Backbone.Model.extend({
     },
 
     updateAnnotationView : function (id, styles) {
-
         var annotationViews = this.get("annotationHash")[id];
-        
-        if (annotationViews) {
-            annotationViews.setStyles(styles);
-        }
+
+        annotationViews.setStyles(styles);
+
         return annotationViews;
     },
 
