@@ -83,6 +83,13 @@ EpubAnnotations.ReflowableAnnotations = Backbone.Model.extend({
             // REFACTORING CANDIDATE: Abstract range creation to account for no previous/next sibling, for different types of
             //   sibiling, etc. 
             rangeStartNode = CFIRangeInfo.startElement.nextSibling ? CFIRangeInfo.startElement.nextSibling : CFIRangeInfo.startElement;
+            while(rangeStartNode.nodeType !== 3){
+                rangeStartNode = rangeStartNode.nextSibling;
+            }
+            rangeEndNode = CFIRangeInfo.endElement.previousSibling ? CFIRangeInfo.endElement.previousSibling : CFIRangeInfo.endElement;
+            while(rangeEndNode.nodeType !== 3){
+                rangeEndNode = rangeEndNode.previousSibling;
+            }
             rangeEndNode = CFIRangeInfo.endElement.previousSibling ? CFIRangeInfo.endElement.previousSibling : CFIRangeInfo.endElement;
             range = document.createRange();
             range.setStart(rangeStartNode, 0);
