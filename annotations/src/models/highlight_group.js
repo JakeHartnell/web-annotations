@@ -31,17 +31,20 @@ EpubAnnotations.HighlightGroup = Backbone.Model.extend({
             return;
         }
 
+        if (event.type === "mouseenter") {
+            that.get("bbPageSetView").trigger("annotationHoverIn", "highlight", that.get("CFI"), that.get("id"), event);
+        } else if (event.type === "mouseleave") {
+            that.get("bbPageSetView").trigger("annotationHoverOut", "highlight", that.get("CFI"), that.get("id"), event);
+        }
 
         // Events that are called on each member of the group
         _.each(this.get("highlightViews"), function (highlightView) {
 
             if (event.type === "mouseenter") {
                 highlightView.setHoverHighlight();
-                that.get("bbPageSetView").trigger("annotationHoverIn", "highlight", that.get("CFI"), that.get("id"), event);
             }
             else if (event.type === "mouseleave") {
                 highlightView.setBaseHighlight();
-                that.get("bbPageSetView").trigger("annotationHoverOut", "highlight", that.get("CFI"), that.get("id"), event);
             }
         });
     },
