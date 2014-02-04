@@ -218,10 +218,12 @@ var EpubAnnotationsModule = function (contentDocumentDOM, bbPageSetView, annotat
         _.each(this.get("highlightViews"), function (highlightView) {
 
             if (event.type === "mouseenter") {
-                highlightView.setHoverHighlight();    
+                highlightView.setHoverHighlight();
+                that.get("bbPageSetView").trigger("annotationHoverIn", "highlight", that.get("CFI"), that.get("id"), event);
             }
             else if (event.type === "mouseleave") {
                 highlightView.setBaseHighlight();
+                that.get("bbPageSetView").trigger("annotationHoverOut", "highlight", that.get("CFI"), that.get("id"), event);
             }
         });
     },
@@ -274,14 +276,9 @@ var EpubAnnotationsModule = function (contentDocumentDOM, bbPageSetView, annotat
     },
 
     resetHighlights : function (viewportElement, offsetTop, offsetLeft) {
-
-        if (offsetTop) {
-            this.set({ offsetTopAddition : offsetTop });
-        }
-        if (offsetLeft) {
-            this.set({ offsetLeftAddition : offsetLeft });
-        }
-
+        
+        this.set({ offsetTopAddition : offsetTop });
+        this.set({ offsetLeftAddition : offsetLeft });
         this.destroyCurrentHighlights();
         this.constructHighlightViews();
         this.renderHighlights(viewportElement);
@@ -419,13 +416,8 @@ var EpubAnnotationsModule = function (contentDocumentDOM, bbPageSetView, annotat
 
     resetUnderlines : function (viewportElement, offsetTop, offsetLeft) {
 
-        if (offsetTop) {
-            this.set({ offsetTopAddition : offsetTop });
-        }
-        if (offsetLeft) {
-            this.set({ offsetLeftAddition : offsetLeft });
-        }
-
+        this.set({ offsetTopAddition : offsetTop });
+        this.set({ offsetLeftAddition : offsetLeft });
         this.destroyCurrentUnderlines();
         this.constructUnderlineViews();
         this.renderUnderlines(viewportElement);
@@ -594,6 +586,13 @@ var EpubAnnotationsModule = function (contentDocumentDOM, bbPageSetView, annotat
             // REFACTORING CANDIDATE: Abstract range creation to account for no previous/next sibling, for different types of
             //   sibiling, etc. 
             rangeStartNode = CFIRangeInfo.startElement.nextSibling ? CFIRangeInfo.startElement.nextSibling : CFIRangeInfo.startElement;
+            while(rangeStartNode.nodeType !== 3){
+                rangeStartNode = rangeStartNode.nextSibling;
+            }
+            rangeEndNode = CFIRangeInfo.endElement.previousSibling ? CFIRangeInfo.endElement.previousSibling : CFIRangeInfo.endElement;
+            while(rangeEndNode.nodeType !== 3){
+                rangeEndNode = rangeEndNode.previousSibling;
+            }
             rangeEndNode = CFIRangeInfo.endElement.previousSibling ? CFIRangeInfo.endElement.previousSibling : CFIRangeInfo.endElement;
             range = document.createRange();
             range.setStart(rangeStartNode, 0);
@@ -1241,7 +1240,9 @@ var EpubAnnotationsModule = function (contentDocumentDOM, bbPageSetView, annotat
     updateAnnotationView : function (id, styles) {
         var annotationViews = this.get("annotationHash")[id];
 
-        annotationViews.setStyles(styles);
+        if (annotationViews) {
+            annotationViews.setStyles(styles);
+        }
 
         return annotationViews;
     },
@@ -1281,13 +1282,8 @@ var EpubAnnotationsModule = function (contentDocumentDOM, bbPageSetView, annotat
 
     resetBookmark : function (offsetTop, offsetLeft) {
 
-        if (offsetTop) {
-            this.bookmark.set({ offsetTopAddition : offsetTop });
-        }
-
-        if (offsetLeft) {
-            this.bookmark.set({ offsetLeftAddition : offsetLeft });
-        }
+        this.bookmark.set({ offsetTopAddition : offsetTop });
+        this.bookmark.set({ offsetLeftAddition : offsetLeft });
         this.setCSS();
     },
 
@@ -1418,8 +1414,13 @@ var EpubAnnotationsModule = function (contentDocumentDOM, bbPageSetView, annotat
             "left" : this.highlight.get("left") + "px",
             "height" : this.highlight.get("height") + "px",
             "width" : this.highlight.get("width") + "px",
-            "background-color" : styles.fill_color || "normal",
         });
+
+        try {
+            this.$el.css(styles);
+        } catch(ex) {
+            console.log('EpubAnnotations: invalid css styles');
+        }
     },
 
     setBaseHighlight : function () {
@@ -1509,9 +1510,11 @@ var EpubAnnotationsModule = function (contentDocumentDOM, bbPageSetView, annotat
         });
 
         // Underline part
-        this.$underlineElement.css({
-            "background-color" : styles.fill_color || "normal",
-        });
+        try {
+            this.$underlineElement.css(styles);
+        } catch(ex) {
+            console.log('EpubAnnotations: invalid css styles');
+        }
 
         
         this.$underlineElement.addClass("underline");
