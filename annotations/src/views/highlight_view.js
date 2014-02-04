@@ -57,8 +57,13 @@ EpubAnnotations.HighlightView = Backbone.View.extend({
             "left" : this.highlight.get("left") + "px",
             "height" : this.highlight.get("height") + "px",
             "width" : this.highlight.get("width") + "px",
-            "background-color" : styles.fill_color || "normal",
         });
+
+        try {
+            this.$el.css(styles);
+        } catch(ex) {
+            console.log('EpubAnnotations: invalid css styles');
+        }
     },
 
     setBaseHighlight : function () {

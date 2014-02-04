@@ -64,9 +64,11 @@ EpubAnnotations.UnderlineView = Backbone.View.extend({
         });
 
         // Underline part
-        this.$underlineElement.css({
-            "background-color" : styles.fill_color || "normal",
-        });
+        try {
+            this.$underlineElement.css(styles);
+        } catch(ex) {
+            console.log('EpubAnnotations: invalid css styles');
+        }
 
         
         this.$underlineElement.addClass("underline");
