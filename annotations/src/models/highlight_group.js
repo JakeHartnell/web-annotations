@@ -36,10 +36,12 @@ EpubAnnotations.HighlightGroup = Backbone.Model.extend({
         _.each(this.get("highlightViews"), function (highlightView) {
 
             if (event.type === "mouseenter") {
-                highlightView.setHoverHighlight();    
+                highlightView.setHoverHighlight();
+                that.get("bbPageSetView").trigger("annotationHoverIn", "highlight", that.get("CFI"), that.get("id"), event);
             }
             else if (event.type === "mouseleave") {
                 highlightView.setBaseHighlight();
+                that.get("bbPageSetView").trigger("annotationHoverOut", "highlight", that.get("CFI"), that.get("id"), event);
             }
         });
     },
