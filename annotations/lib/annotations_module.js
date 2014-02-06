@@ -1,4 +1,4 @@
-var EpubAnnotationsModule = function (contentDocumentDOM, bbPageSetView, annotationCSSUrl) {
+var EpubAnnotationsModule = function (contentDocumentFrame, bbPageSetView, annotationCSSUrl) {
     
     var EpubAnnotations = {};
 
@@ -199,24 +199,24 @@ var EpubAnnotationsModule = function (contentDocumentDOM, bbPageSetView, annotat
     highlightGroupCallback : function (event) {
 
         var that = this;
-        
+        var documentFrame = this.get("contentDocumentFrame");
         // Trigger this event on each of the highlight views (except triggering event)
         if (event.type === "click") {
-            that.get("bbPageSetView").trigger("annotationClicked", "highlight", that.get("CFI"), that.get("id"), event);
+            that.get("bbPageSetView").trigger("annotationClicked", "highlight", that.get("CFI"), that.get("id"), event, documentFrame);
             return;
         }
 
 
         // Trigger this event on each of the highlight views (except triggering event)
         if (event.type === "contextmenu") {
-            that.get("bbPageSetView").trigger("annotationRightClicked", "highlight", that.get("CFI"), that.get("id"), event);
+            that.get("bbPageSetView").trigger("annotationRightClicked", "highlight", that.get("CFI"), that.get("id"), event , documentFrame);
             return;
         }
 
         if (event.type === "mouseenter") {
-            that.get("bbPageSetView").trigger("annotationHoverIn", "highlight", that.get("CFI"), that.get("id"), event);
+            that.get("bbPageSetView").trigger("annotationHoverIn", "highlight", that.get("CFI"), that.get("id"), event, documentFrame);
         } else if (event.type === "mouseleave") {
-            that.get("bbPageSetView").trigger("annotationHoverOut", "highlight", that.get("CFI"), that.get("id"), event);
+            that.get("bbPageSetView").trigger("annotationHoverOut", "highlight", that.get("CFI"), that.get("id"), event, documentFrame);
         }
 
         // Events that are called on each member of the group
@@ -323,6 +323,21 @@ var EpubAnnotationsModule = function (contentDocumentDOM, bbPageSetView, annotat
         _.each(highlightViews, function(view, index) {
             view.setStyles(styles);
         });
+    },
+
+    setState : function (state, value) {
+        if(state === "hover"){
+
+            var highlightViews = this.get('highlightViews');
+
+            _.each(highlightViews, function(view, index) {
+                if(value){
+                    view.setHoverHighlight();
+                }else{
+                    view.setBaseHighlight();
+                }
+            });
+        }
     }
 });
 
@@ -513,6 +528,7 @@ var EpubAnnotationsModule = function (contentDocumentDOM, bbPageSetView, annotat
             offsetTopAddition : 0, 
             offsetLeftAddition : 0, 
             readerBoundElement : $("html", this.get("contentDocumentDOM"))[0],
+            contentDocumentFrame: this.get("contentDocumentFrame"),
             scale: 0,
             bbPageSetView : this.get("bbPageSetView")
         });
@@ -534,7 +550,7 @@ var EpubAnnotationsModule = function (contentDocumentDOM, bbPageSetView, annotat
                 return;
             }
             if (range.startOffset - range.endOffset) {
-                self.annotations.get("bbPageSetView").trigger("textSelectionEvent", event);
+                self.annotations.get("bbPageSetView").trigger("textSelectionEvent", event, range, self.get("contentDocumentFrame"));
             }
         });
 
@@ -805,6 +821,13 @@ var EpubAnnotationsModule = function (contentDocumentDOM, bbPageSetView, annotat
     updateAnnotationView : function (id, styles) {
 
         var annotationViews = this.annotations.updateAnnotationView(id, styles);
+
+        return annotationViews;
+    },
+
+    setAnnotationViewState : function (id, state, value) {
+
+        var annotationViews = this.annotations.setAnnotationViewState(id, state, value);
 
         return annotationViews;
     },
@@ -1190,7 +1213,8 @@ var EpubAnnotationsModule = function (contentDocumentDOM, bbPageSetView, annotat
             styles: styles, 
             id : annotationId,
             bbPageSetView : this.get("bbPageSetView"),
-            scale: this.get("scale")
+            scale: this.get("scale"),
+            contentDocumentFrame: this.get("contentDocumentFrame")
         });
         this.get("annotationHash")[annotationId] = highlightGroup;
         this.get("highlights").push(highlightGroup);
@@ -1245,6 +1269,17 @@ var EpubAnnotationsModule = function (contentDocumentDOM, bbPageSetView, annotat
 
         if (annotationViews) {
             annotationViews.setStyles(styles);
+        }
+
+        return annotationViews;
+    },
+
+    setAnnotationViewState : function (id, state, value){
+
+        var annotationViews = this.get("annotationHash")[id];
+
+        if (annotationViews) {
+            annotationViews.setState(state,value);
         }
 
         return annotationViews;
@@ -1602,7 +1637,8 @@ EpubAnnotations.ImageAnnotation = Backbone.Model.extend({
 
 
     var reflowableAnnotations = new EpubAnnotations.ReflowableAnnotations({
-        contentDocumentDOM : contentDocumentDOM, 
+        contentDocumentDOM : contentDocumentFrame.contentDocument,
+        contentDocumentFrame: contentDocumentFrame,
         bbPageSetView : bbPageSetView,
         annotationCSSUrl : annotationCSSUrl,
     });
@@ -1630,6 +1666,9 @@ EpubAnnotations.ImageAnnotation = Backbone.Model.extend({
         },
         updateAnnotationView : function (id, styles) {
             return reflowableAnnotations.updateAnnotationView(id, styles);
+        },
+        setAnnotationViewState : function (id, state, value) {
+            return reflowableAnnotations.setAnnotationViewState(id, state, value);
         },
         redraw : function () { 
             return reflowableAnnotations.redraw(); 
