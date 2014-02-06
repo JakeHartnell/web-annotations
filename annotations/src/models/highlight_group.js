@@ -17,24 +17,24 @@ EpubAnnotations.HighlightGroup = Backbone.Model.extend({
     highlightGroupCallback : function (event) {
 
         var that = this;
-        
+        var documentFrame = this.get("contentDocumentFrame");
         // Trigger this event on each of the highlight views (except triggering event)
         if (event.type === "click") {
-            that.get("bbPageSetView").trigger("annotationClicked", "highlight", that.get("CFI"), that.get("id"), event);
+            that.get("bbPageSetView").trigger("annotationClicked", "highlight", that.get("CFI"), that.get("id"), event, documentFrame);
             return;
         }
 
 
         // Trigger this event on each of the highlight views (except triggering event)
         if (event.type === "contextmenu") {
-            that.get("bbPageSetView").trigger("annotationRightClicked", "highlight", that.get("CFI"), that.get("id"), event);
+            that.get("bbPageSetView").trigger("annotationRightClicked", "highlight", that.get("CFI"), that.get("id"), event , documentFrame);
             return;
         }
 
         if (event.type === "mouseenter") {
-            that.get("bbPageSetView").trigger("annotationHoverIn", "highlight", that.get("CFI"), that.get("id"), event);
+            that.get("bbPageSetView").trigger("annotationHoverIn", "highlight", that.get("CFI"), that.get("id"), event, documentFrame);
         } else if (event.type === "mouseleave") {
-            that.get("bbPageSetView").trigger("annotationHoverOut", "highlight", that.get("CFI"), that.get("id"), event);
+            that.get("bbPageSetView").trigger("annotationHoverOut", "highlight", that.get("CFI"), that.get("id"), event, documentFrame);
         }
 
         // Events that are called on each member of the group

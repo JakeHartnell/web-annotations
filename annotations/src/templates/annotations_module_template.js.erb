@@ -1,4 +1,4 @@
-var EpubAnnotationsModule = function (contentDocumentDOM, bbPageSetView, annotationCSSUrl) {
+var EpubAnnotationsModule = function (contentDocumentFrame, bbPageSetView, annotationCSSUrl) {
     
     var EpubAnnotations = {};
 
@@ -18,7 +18,8 @@ var EpubAnnotationsModule = function (contentDocumentDOM, bbPageSetView, annotat
 
 
     var reflowableAnnotations = new EpubAnnotations.ReflowableAnnotations({
-        contentDocumentDOM : contentDocumentDOM, 
+        contentDocumentDOM : contentDocumentFrame.contentDocument,
+        contentDocumentFrame: contentDocumentFrame,
         bbPageSetView : bbPageSetView,
         annotationCSSUrl : annotationCSSUrl,
     });

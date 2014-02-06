@@ -7,6 +7,7 @@ EpubAnnotations.ReflowableAnnotations = Backbone.Model.extend({
             offsetTopAddition : 0, 
             offsetLeftAddition : 0, 
             readerBoundElement : $("html", this.get("contentDocumentDOM"))[0],
+            contentDocumentFrame: this.get("contentDocumentFrame"),
             scale: 0,
             bbPageSetView : this.get("bbPageSetView")
         });
@@ -28,7 +29,7 @@ EpubAnnotations.ReflowableAnnotations = Backbone.Model.extend({
                 return;
             }
             if (range.startOffset - range.endOffset) {
-                self.annotations.get("bbPageSetView").trigger("textSelectionEvent", event);
+                self.annotations.get("bbPageSetView").trigger("textSelectionEvent", event, range, self.get("contentDocumentFrame"));
             }
         });
 

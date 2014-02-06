@@ -194,7 +194,8 @@ EpubAnnotations.Annotations = Backbone.Model.extend({
             styles: styles, 
             id : annotationId,
             bbPageSetView : this.get("bbPageSetView"),
-            scale: this.get("scale")
+            scale: this.get("scale"),
+            contentDocumentFrame: this.get("contentDocumentFrame")
         });
         this.get("annotationHash")[annotationId] = highlightGroup;
         this.get("highlights").push(highlightGroup);
