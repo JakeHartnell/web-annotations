@@ -254,6 +254,17 @@ EpubAnnotations.Annotations = Backbone.Model.extend({
         return annotationViews;
     },
 
+    setAnnotationViewState : function (id, state, value){
+
+        var annotationViews = this.get("annotationHash")[id];
+
+        if (annotationViews) {
+            annotationViews.setState(state,value);
+        }
+
+        return annotationViews;
+    },
+
     // REFACTORING CANDIDATE: Some kind of hash lookup would be more efficient here, might want to 
     //   change the implementation of the annotations as an array
     validateAnnotationId : function (id) {
