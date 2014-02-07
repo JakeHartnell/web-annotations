@@ -73,6 +73,13 @@ EpubAnnotations.HighlightGroup = Backbone.Model.extend({
         inferredLines = inferrer.inferLines(rectList);
 
         var scale = this.get("scale");
+        //TODO: this is webkit specific!
+        var $html = $(this.get("contentDocumentFrame").contentDocument);
+        var matrix = $('html', $html).css('-webkit-transform');
+        if(matrix){
+            scale = new WebKitCSSMatrix(matrix).a;
+        }
+        this.set("scale", scale);
 
         _.each(inferredLines, function (line, index) {
 
