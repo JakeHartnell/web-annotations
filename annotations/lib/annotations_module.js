@@ -261,8 +261,6 @@ var EpubAnnotationsModule = function (contentDocumentFrame, bbPageSetView, annot
         if(matrix){
             scale = new WebKitCSSMatrix(matrix).a;
         }
-
-        console.log(scale);
         this.set("scale", scale);
 
         _.each(inferredLines, function (line, index) {
