@@ -469,6 +469,10 @@ EpubAnnotations.ReflowableAnnotations = Backbone.Model.extend({
         var $htmlElement = $("html", this.get("contentDocumentDOM"));
         var offsetLeftPixels = $htmlElement.css("left");
         var offsetLeft = parseInt(offsetLeftPixels.replace("px", ""));
+        if(isNaN(offsetLeft)){
+            //for fixed layouts, $htmlElement.css("left") has no numerical value
+            offsetLeft = 0;
+        }
         return offsetLeft;
     },
 
