@@ -1,8 +1,10 @@
 EpubAnnotations.TextLineInferrer = Backbone.Model.extend({
 
+    lineHorizontalThreshold: 0,
     lineHorizontalLimit: 0,
 
     initialize : function (attributes, options) {
+        this.lineHorizontalThreshold = this.get("lineHorizontalThreshold");
         this.lineHorizontalLimit = this.get("lineHorizontalLimit");
     },
 
@@ -20,7 +22,6 @@ EpubAnnotations.TextLineInferrer = Backbone.Model.extend({
         // Iterate through each rect
         for (var currRectNum = 0; currRectNum <= numRects - 1; currRectNum++) {
             currRect = rectList[currRectNum];
-
             // Check if the rect can be added to any of the current lines
             rectAppended = false;
             for (var currLineNum = 0; currLineNum <= numLines - 1; currLineNum++) {
@@ -135,7 +136,7 @@ EpubAnnotations.TextLineInferrer = Backbone.Model.extend({
 
         // Average height calculation
         var currSumHeights = currLine.avgHeight * currLine.numRects;
-        var avgHeight = ((currSumHeights + rectHeight) / numRectsPlusOne);
+        var avgHeight = Math.ceil((currSumHeights + rectHeight) / numRectsPlusOne);
         currLine.avgHeight = avgHeight;
         currLine.numRects = numRectsPlusOne;
 
@@ -165,10 +166,20 @@ EpubAnnotations.TextLineInferrer = Backbone.Model.extend({
         var newLineRight = lineRight >= rectRight ? lineRight : rectRight;
         var newLineWidth = newLineRight - newLineLeft;
 
+        if(newLineWidth===32){
+            console.log('hey got one!');
+        }
+
         //cancel the expansion if the line is going to expand outside a horizontal limit
         //this is used to prevent lines from spanning multiple columns in a two column epub view
-        var horizontalThreshold = this.lineHorizontalLimit;
-        if (newLineLeft < horizontalThreshold && newLineRight > horizontalThreshold) {
+        var horizontalThreshold = this.lineHorizontalThreshold;
+        var horizontalLimit = this.lineHorizontalLimit;
+
+        var leftBoundary = Math.floor(newLineLeft/horizontalLimit) * horizontalLimit;
+        var centerBoundary = leftBoundary + horizontalThreshold;
+        var rightBoundary = leftBoundary + horizontalLimit;
+        if ((newLineLeft > leftBoundary && newLineRight > centerBoundary && newLineLeft < centerBoundary)
+            || (newLineLeft > centerBoundary && newLineRight > rightBoundary)) {
             return undefined;
         }
 
