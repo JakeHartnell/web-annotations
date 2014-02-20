@@ -5,7 +5,11 @@ var EpubAnnotationsModule = function (contentDocumentFrame, bbPageSetView, annot
     // Rationale: The order of these matters
     EpubAnnotations.TextLineInferrer = Backbone.Model.extend({
 
-    initialize : function (attributes, options) {},
+    lineHorizontalLimit: 0,
+
+    initialize : function (attributes, options) {
+        this.lineHorizontalLimit = this.get("lineHorizontalLimit");
+    },
 
     // ----------------- PUBLIC INTERFACE --------------------------------------------------------------
 
@@ -28,8 +32,7 @@ var EpubAnnotationsModule = function (contentDocumentFrame, bbPageSetView, annot
                 currLine = inferredLines[currLineNum];
 
                 if (this.includeRectInLine(currLine, currRect.top, currRect.left, currRect.width, currRect.height)) {
-                    this.expandLine(currLine, currRect.left, currRect.top, currRect.width, currRect.height);
-                    rectAppended = true;
+                    rectAppended = this.expandLine(currLine, currRect.left, currRect.top, currRect.width, currRect.height);
                     break;   
                 }
             } 
@@ -166,6 +169,14 @@ var EpubAnnotationsModule = function (contentDocumentFrame, bbPageSetView, annot
         var lineRight = currLine.left + currLine.width;
         var newLineRight = lineRight >= rectRight ? lineRight : rectRight;
         var newLineWidth = newLineRight - newLineLeft;
+
+        //cancel the expansion if the line is going to expand outside a horizontal limit
+        //this is used to prevent lines from spanning multiple columns in a two column epub view
+        var horizontalThreshold = this.lineHorizontalLimit;
+        if (newLineLeft < horizontalThreshold && newLineRight > horizontalThreshold) {
+            return undefined;
+        }
+
         currLine.left = newLineLeft;
         currLine.width = newLineWidth;
 
@@ -251,18 +262,17 @@ var EpubAnnotationsModule = function (contentDocumentFrame, bbPageSetView, annot
             });
         });
 
-        inferrer = new EpubAnnotations.TextLineInferrer();
-        inferredLines = inferrer.inferLines(rectList);
-
         var scale = this.get("scale");
         //TODO: this is webkit specific!
-        var $html = $(this.get("contentDocumentFrame").contentDocument);
-        var matrix = $('html', $html).css('-webkit-transform');
-        if(matrix){
+        var $html = $('html',this.get("contentDocumentFrame").contentDocument);
+        var matrix = $html.css('-webkit-transform');
+        if (matrix) {
             scale = new WebKitCSSMatrix(matrix).a;
         }
         this.set("scale", scale);
 
+        inferrer = new EpubAnnotations.TextLineInferrer({lineHorizontalLimit:$html[0].clientWidth});
+        inferredLines = inferrer.inferLines(rectList);
         _.each(inferredLines, function (line, index) {
 
             var highlightTop = (line.startTop + that.get("offsetTopAddition")) / scale;
