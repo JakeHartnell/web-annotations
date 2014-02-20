@@ -69,18 +69,17 @@ EpubAnnotations.HighlightGroup = Backbone.Model.extend({
             });
         });
 
-        inferrer = new EpubAnnotations.TextLineInferrer();
-        inferredLines = inferrer.inferLines(rectList);
-
         var scale = this.get("scale");
         //TODO: this is webkit specific!
-        var $html = $(this.get("contentDocumentFrame").contentDocument);
-        var matrix = $('html', $html).css('-webkit-transform');
-        if(matrix){
+        var $html = $('html',this.get("contentDocumentFrame").contentDocument);
+        var matrix = $html.css('-webkit-transform');
+        if (matrix) {
             scale = new WebKitCSSMatrix(matrix).a;
         }
         this.set("scale", scale);
 
+        inferrer = new EpubAnnotations.TextLineInferrer({lineHorizontalLimit:$html[0].clientWidth});
+        inferredLines = inferrer.inferLines(rectList);
         _.each(inferredLines, function (line, index) {
 
             var highlightTop = (line.startTop + that.get("offsetTopAddition")) / scale;

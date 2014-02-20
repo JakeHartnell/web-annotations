@@ -1,6 +1,10 @@
 EpubAnnotations.TextLineInferrer = Backbone.Model.extend({
 
-    initialize : function (attributes, options) {},
+    lineHorizontalLimit: 0,
+
+    initialize : function (attributes, options) {
+        this.lineHorizontalLimit = this.get("lineHorizontalLimit");
+    },
 
     // ----------------- PUBLIC INTERFACE --------------------------------------------------------------
 
@@ -23,8 +27,7 @@ EpubAnnotations.TextLineInferrer = Backbone.Model.extend({
                 currLine = inferredLines[currLineNum];
 
                 if (this.includeRectInLine(currLine, currRect.top, currRect.left, currRect.width, currRect.height)) {
-                    this.expandLine(currLine, currRect.left, currRect.top, currRect.width, currRect.height);
-                    rectAppended = true;
+                    rectAppended = this.expandLine(currLine, currRect.left, currRect.top, currRect.width, currRect.height);
                     break;   
                 }
             } 
@@ -161,6 +164,14 @@ EpubAnnotations.TextLineInferrer = Backbone.Model.extend({
         var lineRight = currLine.left + currLine.width;
         var newLineRight = lineRight >= rectRight ? lineRight : rectRight;
         var newLineWidth = newLineRight - newLineLeft;
+
+        //cancel the expansion if the line is going to expand outside a horizontal limit
+        //this is used to prevent lines from spanning multiple columns in a two column epub view
+        var horizontalThreshold = this.lineHorizontalLimit;
+        if (newLineLeft < horizontalThreshold && newLineRight > horizontalThreshold) {
+            return undefined;
+        }
+
         currLine.left = newLineLeft;
         currLine.width = newLineWidth;
 
