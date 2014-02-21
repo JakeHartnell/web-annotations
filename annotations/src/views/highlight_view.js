@@ -1,6 +1,6 @@
 EpubAnnotations.HighlightView = Backbone.View.extend({
 
-    el : "<div class='highlight'></div>",
+    el : "<div class=\"highlight\"></div>",
 
     events : {
         "mouseenter" : "highlightEvent",
@@ -43,7 +43,7 @@ EpubAnnotations.HighlightView = Backbone.View.extend({
     setStyles : function (styles) {
 
         this.highlight.set({
-            styles : styles,
+            styles : styles
         });
         this.render();
     },
@@ -56,7 +56,7 @@ EpubAnnotations.HighlightView = Backbone.View.extend({
             "top" : this.highlight.get("top") + "px",
             "left" : this.highlight.get("left") + "px",
             "height" : this.highlight.get("height") + "px",
-            "width" : this.highlight.get("width") + "px",
+            "width" : this.highlight.get("width") + "px"
         });
 
         try {
@@ -86,3 +86,30 @@ EpubAnnotations.HighlightView = Backbone.View.extend({
         highlightGroupContext.highlightGroupCallback(event);
     }
 });
+
+EpubAnnotations.HighlightBorderView = EpubAnnotations.HighlightView.extend({
+
+    el : "<div class=\"highlight-border\"></div>",
+
+    setCSS : function () {
+
+        this.$el.css({
+            backgroundClip: 'padding-box',
+            border:'5px solid rgba(255, 0, 0, 0.3)'
+        });
+        this._super();
+    },
+
+    setBaseHighlight : function () {
+
+        this.$el.addClass("highlight-border");
+        this.$el.removeClass("hover-highlight-border");
+    },
+
+    setHoverHighlight : function () {
+
+        this.$el.addClass("hover-highlight-border");
+        this.$el.removeClass("highlight-border");
+    }
+});
+
