@@ -48,25 +48,68 @@ EpubAnnotations.HighlightGroup = Backbone.Model.extend({
             }
         });
     },
+    elementNodeAllowedTags: ["IMG","img"],
 
     constructHighlightViews : function () {
 
         var that = this;
-        var rectList = [];
+        var rectTextList = [], rectElementList = [];
         var inferrer;
         var inferredLines;
+        var rangeInfo = this.get("rangeInfo");
+        var selectedNodes = this.get("selectedNodes");
 
-        _.each(this.get("selectedNodes"), function (node, index) {
-
-            var rects;
+        if (rangeInfo && rangeInfo.startNode === rangeInfo.endNode) {
+            var node = rangeInfo.startNode;
             var range = document.createRange();
-            range.selectNodeContents(node);
-            rects = range.getClientRects();
+            range.setStart(node,rangeInfo.startOffset);
+            range.setEnd(node,rangeInfo.endOffset);
 
-            // REFACTORING CANDIDATE: Maybe a better way to append an array here
-            _.each(rects, function (rect) {
-                rectList.push(rect);
-            });
+            if (node.nodeType === 3) {
+                rects = range.getClientRects();
+
+                _.each(rects, function (rect) {
+                    rectTextList.push(rect);
+                });
+                selectedNodes = [];
+            }
+//            } else if (node.nodeType === 1) {
+//                if(_.contains(this.elementNodeAllowedTags, node.tagName)) {
+//                    rectElementList.push(range.getBoundingClientRect());
+//                }
+//            }
+
+
+        }
+
+        _.each(selectedNodes, function (node) {
+            var range = document.createRange();
+            if (node.nodeType === 3) {
+                var rects;
+
+                if(rangeInfo && node === rangeInfo.startNode && rangeInfo.startOffset !== 0){
+                    range.setStart(node,rangeInfo.startOffset);
+                    range.setEnd(node,node.length);
+                }else if (rangeInfo && node === rangeInfo.endNode && rangeInfo.endOffset !== 0){
+                    range.setStart(node,0);
+                    range.setEnd(node,rangeInfo.endOffset);
+                }else{
+                    range.selectNodeContents(node);
+                }
+
+                rects = range.getClientRects();
+
+                _.each(rects, function (rect) {
+                    rectTextList.push(rect);
+                });
+            } else if (node.nodeType === 1) {
+                range.selectNodeContents(node);
+
+                if(_.contains(that.elementNodeAllowedTags, node.tagName)) {
+                    rectElementList.push(range.getBoundingClientRect());
+                }
+            }
+
         });
 
         var contentDocumentFrame = this.get("contentDocumentFrame");
@@ -84,7 +127,7 @@ EpubAnnotations.HighlightGroup = Backbone.Model.extend({
             lineHorizontalThreshold: $html[0].clientWidth,
             lineHorizontalLimit: contentDocumentFrame.contentWindow.innerWidth
         });
-        inferredLines = inferrer.inferLines(rectList);
+        inferredLines = inferrer.inferLines(rectTextList);
         _.each(inferredLines, function (line, index) {
 
             var highlightTop = (line.startTop + that.get("offsetTopAddition")) / scale;
@@ -93,6 +136,26 @@ EpubAnnotations.HighlightGroup = Backbone.Model.extend({
             var highlightWidth = line.width / scale;
 
             var highlightView = new EpubAnnotations.HighlightView({
+                CFI : that.get("CFI"),
+                top : highlightTop,
+                left : highlightLeft,
+                height : highlightHeight,
+                width : highlightWidth,
+                styles : that.get('styles'),
+                highlightGroupCallback : that.highlightGroupCallback,
+                callbackContext : that
+            });
+
+            that.get("highlightViews").push(highlightView);
+        });
+
+        _.each(rectElementList, function (rect) {
+            var highlightTop = (rect.top + that.get("offsetTopAddition")) / scale;
+            var highlightLeft = (rect.left + that.get("offsetLeftAddition")) / scale;
+            var highlightHeight = rect.height / scale;
+            var highlightWidth = rect.width / scale;
+
+            var highlightView = new EpubAnnotations.HighlightBorderView({
                 CFI : that.get("CFI"),
                 top : highlightTop,
                 left : highlightLeft,
