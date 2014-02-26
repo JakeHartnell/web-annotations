@@ -142,7 +142,7 @@ EpubAnnotations.Annotations = Backbone.Model.extend({
         $(this.get("readerBoundElement")).append(bookmarkView.render());
     },
 
-    removeHighlight: function(annotationId) {
+    removeHighlightWithMarkers: function(annotationId) {
         var annotationHash = this.get("annotationHash");
         var highlights = this.get("highlights");
         var markers = this.get("markers");
@@ -175,7 +175,28 @@ EpubAnnotations.Annotations = Backbone.Model.extend({
                              this.set("highlights", highlights);
     },
 
-    addHighlight : function (CFI, highlightedTextNodes, annotationId, offsetTop, offsetLeft, startMarker, endMarker, styles) {
+    removeHighlight: function(annotationId) {
+        var annotationHash = this.get("annotationHash");
+        var highlights = this.get("highlights");
+
+        delete annotationHash[annotationId];
+
+        highlights = _.reject(highlights,
+            function(obj) {
+                if (obj.id == annotationId) {
+                    obj.destroyCurrentHighlights();
+                    return true;
+                } else {
+                    return false;
+                }
+            }
+        );
+
+
+        this.set("highlights", highlights);
+    },
+
+    addHighlightWithMarkers : function (CFI, highlightedTextNodes, annotationId, offsetTop, offsetLeft, startMarker, endMarker, styles) {
         if (!offsetTop) {
             offsetTop = this.get("offsetTopAddition");
         }
@@ -202,6 +223,41 @@ EpubAnnotations.Annotations = Backbone.Model.extend({
         this.get("markers")[annotationId] = {"startMarker": startMarker, "endMarker":endMarker};
         highlightGroup.renderHighlights(this.get("readerBoundElement"));
     },
+
+    addHighlight: function (annotationId, CFI, highlightedNodes, startNode, startOffset, endNode, endOffset,  offsetTop, offsetLeft, styles) {
+        if (!offsetTop) {
+            offsetTop = this.get("offsetTopAddition");
+        }
+        if (!offsetLeft) {
+            offsetLeft = this.get("offsetLeftAddition");
+        }
+
+        annotationId = annotationId.toString();
+        this.validateAnnotationId(annotationId);
+
+        var highlightGroup = new EpubAnnotations.HighlightGroup({
+            CFI : CFI,
+            selectedNodes : highlightedNodes,
+            offsetTopAddition : offsetTop,
+            offsetLeftAddition : offsetLeft,
+            styles: styles,
+            id : annotationId,
+            bbPageSetView : this.get("bbPageSetView"),
+            scale: this.get("scale"),
+            contentDocumentFrame: this.get("contentDocumentFrame"),
+            rangeInfo: {
+                startNode: startNode,
+                startOffset: startOffset,
+                endNode: endNode,
+                endOffset: endOffset
+            }
+        });
+        this.get("annotationHash")[annotationId] = highlightGroup;
+        this.get("highlights").push(highlightGroup);
+        highlightGroup.renderHighlights(this.get("readerBoundElement"));
+    },
+
+
 
     addUnderline : function (CFI, underlinedTextNodes, annotationId, offsetTop, offsetLeft, styles) {
 

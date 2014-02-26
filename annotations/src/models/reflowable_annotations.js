@@ -1,19 +1,20 @@
+
 EpubAnnotations.ReflowableAnnotations = Backbone.Model.extend({
 
     initialize : function (attributes, options) {
-        
+
         this.epubCFI = EPUBcfi;
         this.annotations = new EpubAnnotations.Annotations({
-            offsetTopAddition : 0, 
-            offsetLeftAddition : 0, 
+            offsetTopAddition : 0,
+            offsetLeftAddition : 0,
             readerBoundElement : $("html", this.get("contentDocumentDOM"))[0],
             contentDocumentFrame: this.get("contentDocumentFrame"),
             scale: 0,
             bbPageSetView : this.get("bbPageSetView")
         });
-        // inject annotation CSS into iframe 
+        // inject annotation CSS into iframe
 
-        
+
         var annotationCSSUrl = this.get("annotationCSSUrl");
         if (annotationCSSUrl)
         {
@@ -33,7 +34,9 @@ EpubAnnotations.ReflowableAnnotations = Backbone.Model.extend({
             }
         });
 
-
+        if(!rangy.initialized){
+            rangy.init();
+        }
     },
 
     // ------------------------------------------------------------------------------------ //
@@ -52,7 +55,7 @@ EpubAnnotations.ReflowableAnnotations = Backbone.Model.extend({
 
 
 
-    addHighlight : function (CFI, id, type, styles) {
+    addHighlightWithMarkers : function (CFI, id, type, styles) {
 
         var CFIRangeInfo;
         var range;
@@ -82,7 +85,7 @@ EpubAnnotations.ReflowableAnnotations = Backbone.Model.extend({
 
             // Get start and end marker for the id, using injected into elements
             // REFACTORING CANDIDATE: Abstract range creation to account for no previous/next sibling, for different types of
-            //   sibiling, etc. 
+            //   sibiling, etc.
             rangeStartNode = CFIRangeInfo.startElement.nextSibling ? CFIRangeInfo.startElement.nextSibling : CFIRangeInfo.startElement;
             while(rangeStartNode.nodeType !== 3){
                 rangeStartNode = rangeStartNode.nextSibling;
@@ -108,13 +111,64 @@ EpubAnnotations.ReflowableAnnotations = Backbone.Model.extend({
             }
 
             return {
-                CFI : CFI, 
+                CFI : CFI,
                 selectedElements : selectionInfo.selectedElements
             };
 
         } catch (error) {
             console.log(error.message);
         }
+    },
+
+    addHighlight : function (CFI, id, type, styles) {
+
+        var CFIRangeInfo;
+        var range;
+        var rangeStartNode;
+        var rangeEndNode;
+        var selectedElements;
+        var leftAddition;
+
+        var contentDoc = this.get("contentDocumentDOM");
+        // TODO webkit specific?
+        var matrix = $('html', contentDoc).css('-webkit-transform');
+        var scale = new WebKitCSSMatrix(matrix).a;
+        this.set("scale", scale);
+
+        //try {
+
+            CFIRangeInfo = this.epubCFI.getRangeTargetNodes(CFI, contentDoc,
+                ["cfi-marker"],
+                [],
+                ["MathJax_Message"]);
+            var startNode = CFIRangeInfo.startNodes[0], endNode = CFIRangeInfo.endNodes[0];
+
+            range = rangy.createRange(contentDoc);
+            if(startNode.length< CFIRangeInfo.startOffset){
+                //this is a workaround "Uncaught IndexSizeError: Index or size was negative, or greater than the allowed value." errors
+                //the range cfi generator outputs a cfi like /4/2,/1:125,/16
+                //can't explain, investigating..
+                CFIRangeInfo.startOffset = startNode.length;
+            }
+            range.setStart(startNode, CFIRangeInfo.startOffset);
+            range.setEnd(endNode, CFIRangeInfo.endOffset);
+
+            selectedElements = range.getNodes();
+            leftAddition = -this.getPaginationLeftOffset();
+
+            if (type === "highlight") {
+                this.annotations.set('scale', this.get('scale'));
+                this.annotations.addHighlight(id, CFI, selectedElements, startNode,range.startOffset,endNode,range.endOffset, 0, leftAddition, styles);
+            }
+
+            return {
+                CFI : CFI,
+                selectedElements : selectedElements
+            };
+
+       /* } catch (error) {
+            console.log(error.message);
+        } */
     },
 
     addBookmark : function (CFI, id, type) {
@@ -140,7 +194,7 @@ EpubAnnotations.ReflowableAnnotations = Backbone.Model.extend({
 
             return {
 
-                CFI : CFI, 
+                CFI : CFI,
                 selectedElements : $injectedElement[0]
             };
 
@@ -167,7 +221,7 @@ EpubAnnotations.ReflowableAnnotations = Backbone.Model.extend({
 
             return {
 
-                CFI : CFI, 
+                CFI : CFI,
                 selectedElements : $targetImage[0]
             };
 
@@ -224,11 +278,11 @@ EpubAnnotations.ReflowableAnnotations = Backbone.Model.extend({
                 annotationInfo = this.addHighlight(CFI, id, type, styles);
             }
 
-            // Rationale: The annotationInfo object returned from .addBookmark(...) contains the same value of 
+            // Rationale: The annotationInfo object returned from .addBookmark(...) contains the same value of
             //   the CFI variable in the current scope. Since this CFI variable contains a "hacked" CFI value -
             //   only the content document portion is valid - we want to replace the annotationInfo.CFI property with
             //   the partial content document CFI portion we originally generated.
-            annotationInfo.CFI = generatedContentDocCFI;            
+            annotationInfo.CFI = generatedContentDocCFI;
             return annotationInfo;
         }
         else {
@@ -250,7 +304,7 @@ EpubAnnotations.ReflowableAnnotations = Backbone.Model.extend({
             CFI = "epubcfi(" + arbitraryPackageDocCFI + generatedContentDocCFI + ")";
             annotationInfo = this.addBookmark(CFI, id, type);
 
-            // Rationale: The annotationInfo object returned from .addBookmark(...) contains the same value of 
+            // Rationale: The annotationInfo object returned from .addBookmark(...) contains the same value of
             //   the CFI variable in the current scope. Since this CFI variable contains a "hacked" CFI value -
             //   only the content document portion is valid - we want to replace the annotationInfo.CFI property with
             //   the partial content document CFI portion we originally generated.
@@ -285,7 +339,7 @@ EpubAnnotations.ReflowableAnnotations = Backbone.Model.extend({
             CFI = "epubcfi(" + arbitraryPackageDocCFI + generatedContentDocCFI + ")";
             annotationInfo = this.addImageAnnotation(CFI, id);
 
-            // Rationale: The annotationInfo object returned from .addBookmark(...) contains the same value of 
+            // Rationale: The annotationInfo object returned from .addBookmark(...) contains the same value of
             //   the CFI variable in the current scope. Since this CFI variable contains a "hacked" CFI value -
             //   only the content document portion is valid - we want to replace the annotationInfo.CFI property with
             //   the partial content document CFI portion we originally generated.
@@ -330,11 +384,11 @@ EpubAnnotations.ReflowableAnnotations = Backbone.Model.extend({
         }
 
         this.findSelectedElements(
-            selectedRange.commonAncestorContainer, 
-            selectedRange.startContainer, 
+            selectedRange.commonAncestorContainer,
+            selectedRange.startContainer,
             selectedRange.endContainer,
             intervalState,
-            selectedElements, 
+            selectedElements,
             elementType
         );
 
@@ -434,7 +488,7 @@ EpubAnnotations.ReflowableAnnotations = Backbone.Model.extend({
             }
             else {
                 if ($(currElement).is(elementType)) {
-                    selectedElements.push(currElement);    
+                    selectedElements.push(currElement);
                 }
             }
         });
@@ -497,3 +551,4 @@ EpubAnnotations.ReflowableAnnotations = Backbone.Model.extend({
         );
     }
 });
+
