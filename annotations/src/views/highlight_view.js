@@ -52,7 +52,8 @@ EpubAnnotations.HighlightView = Backbone.View.extend({
 
         var styles = this.highlight.get("styles") || {};
         
-        this.$el.css({ 
+        this.$el.css({
+            "position" : "absolute",
             "top" : this.highlight.get("top") + "px",
             "left" : this.highlight.get("left") + "px",
             "height" : this.highlight.get("height") + "px",
@@ -95,7 +96,10 @@ EpubAnnotations.HighlightBorderView = EpubAnnotations.HighlightView.extend({
 
         this.$el.css({
             backgroundClip: 'padding-box',
-            border:'5px solid rgba(255, 0, 0, 0.3)'
+            borderStyle:'solid',
+            borderWidth: '5px',
+            marginLeft: "-5px",
+            marginTop: "-5px"
         });
         this._super();
     },
