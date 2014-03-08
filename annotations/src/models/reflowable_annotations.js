@@ -21,9 +21,9 @@ EpubAnnotations.ReflowableAnnotations = Backbone.Model.extend({
         }
 
         // emit an event when user selects some text.
-        var epubWindow = $(this.get("contentDocumentDOM"));
+        var epubWindow = this.get("contentDocumentDOM");
         var self = this;
-        epubWindow.on("mouseup", function(event) {
+        epubWindow.addEventListener("mouseup", function(event) {
             var range = self.getCurrentSelectionRange();
             if (range === undefined) {
                 return;
