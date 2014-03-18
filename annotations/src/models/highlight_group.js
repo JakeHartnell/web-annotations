@@ -72,11 +72,11 @@ EpubAnnotations.HighlightGroup = Backbone.Model.extend({
         var contentDocumentFrame = this.get("contentDocumentFrame");
 
         var scale = this.get("scale");
-        //TODO: this is webkit specific!
+        //get & update model's transform scale of content document
         var $html = $('html',contentDocumentFrame.contentDocument);
-        var matrix = $html.css('-webkit-transform');
+        var matrix = EpubAnnotations.Helpers.getMatrix($html);
         if (matrix) {
-            scale = new WebKitCSSMatrix(matrix).a;
+            scale = EpubAnnotations.Helpers.getScaleFromMatrix(matrix);
         }
         this.set("scale", scale);
 

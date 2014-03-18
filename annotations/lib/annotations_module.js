@@ -276,11 +276,11 @@ var EpubAnnotationsModule = function (contentDocumentFrame, bbPageSetView, annot
         var contentDocumentFrame = this.get("contentDocumentFrame");
 
         var scale = this.get("scale");
-        //TODO: this is webkit specific!
+        //get & update model's transform scale of content document
         var $html = $('html',contentDocumentFrame.contentDocument);
-        var matrix = $html.css('-webkit-transform');
+        var matrix = EpubAnnotations.Helpers.getMatrix($html);
         if (matrix) {
-            scale = new WebKitCSSMatrix(matrix).a;
+            scale = EpubAnnotations.Helpers.getScaleFromMatrix(matrix);
         }
         this.set("scale", scale);
 
@@ -617,10 +617,13 @@ var EpubAnnotationsModule = function (contentDocumentFrame, bbPageSetView, annot
         var startMarkerHtml = this.getRangeStartMarker(CFI, id);
         var endMarkerHtml = this.getRangeEndMarker(CFI, id);
 
-        // TODO webkit specific?
+        //get transform scale of content document
         var $html = $(this.get("contentDocumentDOM"));
-        var matrix = $('html', $html).css('-webkit-transform');
-        var scale = new WebKitCSSMatrix(matrix).a;
+        var scale = 1.0;
+        var matrix = EpubAnnotations.Helpers.getMatrix($('html', $html));
+        if (matrix) {
+            scale = EpubAnnotations.Helpers.getScaleFromMatrix(matrix);
+        }
         this.set("scale", scale);
 
         try {
@@ -903,29 +906,27 @@ var EpubAnnotationsModule = function (contentDocumentFrame, bbPageSetView, annot
 
         var startNode = selectedRange.startContainer;
         var endNode = selectedRange.endContainer;
+        var commonAncestor = selectedRange.commonAncestorContainer;
         var startOffset;
         var endOffset;
         var rangeCFIComponent;
 
-        if (startNode.nodeType === Node.TEXT_NODE && endNode.nodeType === Node.TEXT_NODE) {
 
-            startOffset = selectedRange.startOffset;
-            endOffset = selectedRange.endOffset;
+        startOffset = selectedRange.startOffset;
+        endOffset = selectedRange.endOffset;
 
-            rangeCFIComponent = this.epubCFI.generateCharOffsetRangeComponent(
-                startNode, 
-                startOffset, 
-                endNode, 
-                endOffset,
-                ["cfi-marker"],
-                [],
-                ["MathJax_Message"]
-                );
-            return rangeCFIComponent;
-        }
-        else {
-            throw new Error("Selection start and end must be text nodes");
-        }
+        rangeCFIComponent = this.epubCFI.generateMixedRangeComponent(
+            startNode,
+            startOffset,
+            endNode,
+            endOffset,
+            commonAncestor,
+            ["cfi-marker"],
+            [],
+            ["MathJax_Message"]
+        );
+        return rangeCFIComponent;
+
     },
 
     generateCharOffsetCFI : function (selectedRange) {
