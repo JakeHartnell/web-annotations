@@ -352,27 +352,29 @@ EpubAnnotations.ReflowableAnnotations = Backbone.Model.extend({
 
         var startNode = selectedRange.startContainer;
         var endNode = selectedRange.endContainer;
-        var commonAncestor = selectedRange.commonAncestorContainer;
         var startOffset;
         var endOffset;
         var rangeCFIComponent;
 
+        if (startNode.nodeType === Node.TEXT_NODE && endNode.nodeType === Node.TEXT_NODE) {
 
-        startOffset = selectedRange.startOffset;
-        endOffset = selectedRange.endOffset;
+            startOffset = selectedRange.startOffset;
+            endOffset = selectedRange.endOffset;
 
-        rangeCFIComponent = this.epubCFI.generateMixedRangeComponent(
-            startNode,
-            startOffset,
-            endNode,
-            endOffset,
-            commonAncestor,
-            ["cfi-marker","cfi-blacklist","mo-cfi-highlight"],
-            [],
-            ["MathJax_Message"]
-        );
-        return rangeCFIComponent;
-
+            rangeCFIComponent = this.epubCFI.generateCharOffsetRangeComponent(
+                startNode, 
+                startOffset, 
+                endNode, 
+                endOffset,
+                ["cfi-marker","cfi-blacklist","mo-cfi-highlight"],
+                [],
+                ["MathJax_Message"]
+                );
+            return rangeCFIComponent;
+        }
+        else {
+            throw new Error("Selection start and end must be text nodes");
+        }
     },
 
     generateCharOffsetCFI : function (selectedRange) {
