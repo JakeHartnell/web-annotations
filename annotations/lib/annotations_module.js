@@ -575,9 +575,9 @@ var EpubAnnotationsModule = function (contentDocumentFrame, bbPageSetView, annot
         }
 
         // emit an event when user selects some text.
-        var epubWindow = $(this.get("contentDocumentDOM"));
+        var epubWindow = this.get("contentDocumentDOM");
         var self = this;
-        epubWindow.on("mouseup", function(event) {
+        epubWindow.addEventListener("mouseup", function(event) {
             var range = self.getCurrentSelectionRange();
             if (range === undefined) {
                 return;
@@ -632,7 +632,7 @@ var EpubAnnotationsModule = function (contentDocumentFrame, bbPageSetView, annot
                 this.get("contentDocumentDOM"),
                 startMarkerHtml,
                 endMarkerHtml,
-                ["cfi-marker"],
+                ["cfi-marker","cfi-blacklist","mo-cfi-highlight"],
                 [],
                 ["MathJax_Message"]
                 );
@@ -686,7 +686,7 @@ var EpubAnnotationsModule = function (contentDocumentFrame, bbPageSetView, annot
                 CFI,
                 this.get("contentDocumentDOM"),
                 bookmarkMarkerHtml,
-                ["cfi-marker"],
+                ["cfi-marker","cfi-blacklist","mo-cfi-highlight"],
                 [],
                 ["MathJax_Message"]
             );
@@ -716,7 +716,7 @@ var EpubAnnotationsModule = function (contentDocumentFrame, bbPageSetView, annot
             $targetImage = this.epubCFI.getTargetElement(
                 CFI,
                 this.get("contentDocumentDOM"),
-                ["cfi-marker"],
+                ["cfi-marker","cfi-blacklist","mo-cfi-highlight"],
                 [],
                 ["MathJax_Message"]
             );
@@ -835,7 +835,7 @@ var EpubAnnotationsModule = function (contentDocumentFrame, bbPageSetView, annot
             firstSelectedImage = selectionInfo.selectedElements[0];
             generatedContentDocCFI = this.epubCFI.generateElementCFIComponent(
                 firstSelectedImage,
-                ["cfi-marker"],
+                ["cfi-marker","cfi-blacklist","mo-cfi-highlight"],
                 [],
                 ["MathJax_Message"]
             );
@@ -921,7 +921,7 @@ var EpubAnnotationsModule = function (contentDocumentFrame, bbPageSetView, annot
             endNode,
             endOffset,
             commonAncestor,
-            ["cfi-marker"],
+            ["cfi-marker","cfi-blacklist","mo-cfi-highlight"],
             [],
             ["MathJax_Message"]
         );
@@ -940,7 +940,7 @@ var EpubAnnotationsModule = function (contentDocumentFrame, bbPageSetView, annot
             charOffsetCFI = this.epubCFI.generateCharacterOffsetCFIComponent(
                 startNode,
                 startOffset,
-                ["cfi-marker"],
+                ["cfi-marker","cfi-blacklist","mo-cfi-highlight"],
                 [],
                 ["MathJax_Message"]
             );
