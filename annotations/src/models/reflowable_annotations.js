@@ -78,7 +78,7 @@ EpubAnnotations.ReflowableAnnotations = Backbone.Model.extend({
                 this.get("contentDocumentDOM"),
                 startMarkerHtml,
                 endMarkerHtml,
-                ["cfi-marker"],
+                ["cfi-marker","cfi-blacklist","mo-cfi-highlight"],
                 [],
                 ["MathJax_Message"]
                 );
@@ -132,7 +132,7 @@ EpubAnnotations.ReflowableAnnotations = Backbone.Model.extend({
                 CFI,
                 this.get("contentDocumentDOM"),
                 bookmarkMarkerHtml,
-                ["cfi-marker"],
+                ["cfi-marker","cfi-blacklist","mo-cfi-highlight"],
                 [],
                 ["MathJax_Message"]
             );
@@ -162,7 +162,7 @@ EpubAnnotations.ReflowableAnnotations = Backbone.Model.extend({
             $targetImage = this.epubCFI.getTargetElement(
                 CFI,
                 this.get("contentDocumentDOM"),
-                ["cfi-marker"],
+                ["cfi-marker","cfi-blacklist","mo-cfi-highlight"],
                 [],
                 ["MathJax_Message"]
             );
@@ -281,7 +281,7 @@ EpubAnnotations.ReflowableAnnotations = Backbone.Model.extend({
             firstSelectedImage = selectionInfo.selectedElements[0];
             generatedContentDocCFI = this.epubCFI.generateElementCFIComponent(
                 firstSelectedImage,
-                ["cfi-marker"],
+                ["cfi-marker","cfi-blacklist","mo-cfi-highlight"],
                 [],
                 ["MathJax_Message"]
             );
@@ -367,7 +367,7 @@ EpubAnnotations.ReflowableAnnotations = Backbone.Model.extend({
             endNode,
             endOffset,
             commonAncestor,
-            ["cfi-marker"],
+            ["cfi-marker","cfi-blacklist","mo-cfi-highlight"],
             [],
             ["MathJax_Message"]
         );
@@ -386,7 +386,7 @@ EpubAnnotations.ReflowableAnnotations = Backbone.Model.extend({
             charOffsetCFI = this.epubCFI.generateCharacterOffsetCFIComponent(
                 startNode,
                 startOffset,
-                ["cfi-marker"],
+                ["cfi-marker","cfi-blacklist","mo-cfi-highlight"],
                 [],
                 ["MathJax_Message"]
             );
