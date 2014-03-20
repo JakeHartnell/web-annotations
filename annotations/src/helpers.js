@@ -5,7 +5,7 @@ EpubAnnotations.Helpers = {
             $obj.css("-ms-transform") ||
             $obj.css("-o-transform") ||
             $obj.css("transform");
-        return matrix;
+        return matrix === "none" ? undefined : matrix;
     },
     getScaleFromMatrix: function (matrix) {
         var matrixRegex = /matrix\((-?\d*\.?\d+),\s*0,\s*0,\s*(-?\d*\.?\d+),\s*0,\s*0\)/,
