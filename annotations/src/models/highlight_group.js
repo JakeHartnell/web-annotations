@@ -81,7 +81,7 @@ EpubAnnotations.HighlightGroup = Backbone.Model.extend({
                 rects = range.getClientRects();
 
                 _.each(rects, function (rect) {
-                    rectTextList.push(rect);
+                    rectTextList.push(that.normalizeRectangle(rect));
                 });
                 selectedNodes = [];
             }
