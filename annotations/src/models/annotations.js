@@ -153,8 +153,8 @@ EpubAnnotations.Annotations = Backbone.Model.extend({
         var startMarker =  markers[annotationId].startMarker;
         var endMarker = markers[annotationId].endMarker;
 
-        startMarker.remove();
-        endMarker.remove();
+        $(startMarker).remove();
+        $(endMarker).remove();
 
         delete markers[annotationId];
 
