@@ -127,7 +127,12 @@ EpubAnnotations.HighlightGroup = Backbone.Model.extend({
     destroyCurrentHighlights : function () { 
 
         _.each(this.get("highlightViews"), function (highlightView) {
-            highlightView.remove();
+            try {
+                highlightView.remove();
+            } catch (ex) {
+                console.log('IE: caught exception #2:');
+                console.log(ex);
+            }
             highlightView.off();
         });
 
