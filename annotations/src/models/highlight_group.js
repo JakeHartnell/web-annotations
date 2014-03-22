@@ -8,6 +8,13 @@ EpubAnnotations.HighlightGroup = Backbone.Model.extend({
     },
 
     initialize : function (attributes, options) {
+//        this.getFromModel = this.get;
+//        this.get = function(attr){
+//            console.log('getting attr2: '+attr);
+//            var value = this.getFromModel(attr);
+//            console.log(value);
+//            return value;
+//        };
         this.set("scale", attributes.scale);
         this.constructHighlightViews();
     },
