@@ -10,6 +10,10 @@ EpubAnnotations.Helpers = {
     getScaleFromMatrix: function (matrix) {
         var matrixRegex = /matrix\((-?\d*\.?\d+),\s*0,\s*0,\s*(-?\d*\.?\d+),\s*0,\s*0\)/,
             matches = matrix.match(matrixRegex);
-        return matches;
+        return matches[1];
+    },
+    generateShortUid: function () {
+        return ("0000" + (Math.random() * Math.pow(36, 4) << 0).toString(36)).substr(-4);
     }
 };
+
