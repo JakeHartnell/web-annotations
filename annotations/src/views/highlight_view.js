@@ -78,6 +78,14 @@ EpubAnnotations.HighlightView = Backbone.View.extend({
         this.$el.removeClass("highlight");
     },
 
+    setVisibility: function(value){
+        if (value) {
+            this.$el.css('display','');
+        } else {
+            this.$el.css('display','none');
+        }
+    },
+
     highlightEvent : function (event) {
 
         event.stopPropagation();

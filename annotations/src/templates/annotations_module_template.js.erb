@@ -52,6 +52,9 @@ var EpubAnnotationsModule = function (contentDocumentFrame, bbPageSetView, annot
         setAnnotationViewState : function (id, state, value) {
             return reflowableAnnotations.setAnnotationViewState(id, state, value);
         },
+        setAnnotationViewStateForAll : function (state, value) {
+            return reflowableAnnotations.setAnnotationViewStateForAll(state, value);
+        },
         redraw : function () { 
             return reflowableAnnotations.redraw(); 
         },

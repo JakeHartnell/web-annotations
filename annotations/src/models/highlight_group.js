@@ -162,17 +162,20 @@ EpubAnnotations.HighlightGroup = Backbone.Model.extend({
     },
 
     setState : function (state, value) {
-        if(state === "hover"){
 
             var highlightViews = this.get('highlightViews');
 
             _.each(highlightViews, function(view, index) {
-                if(value){
-                    view.setHoverHighlight();
-                }else{
-                    view.setBaseHighlight();
+                if (state === "hover") {
+                    if (value) {
+                        view.setHoverHighlight();
+                    } else {
+                        view.setBaseHighlight();
+                    }
+                } else if (state === "visible") {
+                    view.setVisibility(value);
                 }
             });
-        }
+
     }
 });
