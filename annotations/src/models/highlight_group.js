@@ -73,10 +73,13 @@ EpubAnnotations.HighlightGroup = Backbone.Model.extend({
         var inferrer;
         var inferredLines;
 
+        var contentDocumentFrame = this.get("contentDocumentFrame");
+
+
         _.each(this.get("selectedNodes"), function (node, index) {
 
             var rects;
-            var range = document.createRange();
+            var range = contentDocumentFrame.contentDocument.createRange();
             range.selectNodeContents(node);
             rects = range.getClientRects();
 
@@ -86,7 +89,6 @@ EpubAnnotations.HighlightGroup = Backbone.Model.extend({
             });
         });
 
-        var contentDocumentFrame = this.get("contentDocumentFrame");
 
         var scale = this.get("scale");
         //get & update model's transform scale of content document

@@ -94,7 +94,7 @@ EpubAnnotations.ReflowableAnnotations = Backbone.Model.extend({
                 rangeEndNode = rangeEndNode.previousSibling;
             }
             rangeEndNode = CFIRangeInfo.endElement.previousSibling ? CFIRangeInfo.endElement.previousSibling : CFIRangeInfo.endElement;
-            range = document.createRange();
+            range = this.get("contentDocumentDOM").createRange();
             range.setStart(rangeStartNode, 0);
             range.setEnd(rangeEndNode, rangeEndNode.length);
 
