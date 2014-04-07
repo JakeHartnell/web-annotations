@@ -55,7 +55,17 @@ EpubAnnotations.HighlightGroup = Backbone.Model.extend({
             }
         });
     },
+    normalizeRectangle: function (rect) {
 
+        return {
+            left: rect.left,
+            right: rect.right,
+            top: rect.top,
+            bottom: rect.bottom,
+            width: rect.right - rect.left,
+            height: rect.bottom - rect.top
+        };
+    },
     constructHighlightViews : function () {
 
         var that = this;
@@ -72,7 +82,7 @@ EpubAnnotations.HighlightGroup = Backbone.Model.extend({
 
             // REFACTORING CANDIDATE: Maybe a better way to append an array here
             _.each(rects, function (rect) {
-                rectList.push(rect);
+                rectList.push(that.normalizeRectangle(rect));
             });
         });
 
