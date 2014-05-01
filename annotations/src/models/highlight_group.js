@@ -48,8 +48,19 @@ EpubAnnotations.HighlightGroup = Backbone.Model.extend({
             }
         });
     },
-    elementNodeAllowedTags: ["IMG","img"],
 
+    normalizeRectangle: function (rect) {
+        return {
+            left: rect.left,
+            right: rect.right,
+            top: rect.top,
+            bottom: rect.bottom,
+            width: rect.right - rect.left,
+            height: rect.bottom - rect.top
+        };
+    },
+
+    elementNodeAllowedTags: ["img"], //in lowercase
     constructHighlightViews : function () {
 
         var that = this;
@@ -58,10 +69,11 @@ EpubAnnotations.HighlightGroup = Backbone.Model.extend({
         var inferredLines;
         var rangeInfo = this.get("rangeInfo");
         var selectedNodes = this.get("selectedNodes");
-
+        var contentDocumentFrame = this.get("contentDocumentFrame");
+        
         if (rangeInfo && rangeInfo.startNode === rangeInfo.endNode) {
             var node = rangeInfo.startNode;
-            var range = document.createRange();
+            var range = contentDocumentFrame.contentDocument.createRange();
             range.setStart(node,rangeInfo.startOffset);
             range.setEnd(node,rangeInfo.endOffset);
 
@@ -83,7 +95,7 @@ EpubAnnotations.HighlightGroup = Backbone.Model.extend({
         }
 
         _.each(selectedNodes, function (node) {
-            var range = document.createRange();
+            var range = contentDocumentFrame.contentDocument.createRange();
             if (node.nodeType === 3) {
                 var rects;
 
@@ -105,21 +117,19 @@ EpubAnnotations.HighlightGroup = Backbone.Model.extend({
             } else if (node.nodeType === 1) {
                 range.selectNodeContents(node);
 
-                if(_.contains(that.elementNodeAllowedTags, node.tagName)) {
+                if(_.contains(that.elementNodeAllowedTags, node.tagName.toLowerCase())) {
                     rectElementList.push(range.getBoundingClientRect());
                 }
             }
 
         });
 
-        var contentDocumentFrame = this.get("contentDocumentFrame");
-
         var scale = this.get("scale");
-        //TODO: this is webkit specific!
+        //get & update model's transform scale of content document
         var $html = $('html',contentDocumentFrame.contentDocument);
-        var matrix = $html.css('-webkit-transform');
+        var matrix = EpubAnnotations.Helpers.getMatrix($html);
         if (matrix) {
-            scale = new WebKitCSSMatrix(matrix).a;
+            scale = EpubAnnotations.Helpers.getScaleFromMatrix(matrix);
         }
         this.set("scale", scale);
 
@@ -218,17 +228,20 @@ EpubAnnotations.HighlightGroup = Backbone.Model.extend({
     },
 
     setState : function (state, value) {
-        if(state === "hover"){
 
             var highlightViews = this.get('highlightViews');
 
             _.each(highlightViews, function(view, index) {
-                if(value){
-                    view.setHoverHighlight();
-                }else{
-                    view.setBaseHighlight();
+                if (state === "hover") {
+                    if (value) {
+                        view.setHoverHighlight();
+                    } else {
+                        view.setBaseHighlight();
+                    }
+                } else if (state === "visible") {
+                    view.setVisibility(value);
                 }
             });
-        }
+
     }
 });

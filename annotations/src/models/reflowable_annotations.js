@@ -1,4 +1,3 @@
-
 EpubAnnotations.ReflowableAnnotations = Backbone.Model.extend({
 
     initialize : function (attributes, options) {
@@ -66,10 +65,13 @@ EpubAnnotations.ReflowableAnnotations = Backbone.Model.extend({
         var startMarkerHtml = this.getRangeStartMarker(CFI, id);
         var endMarkerHtml = this.getRangeEndMarker(CFI, id);
 
-        // TODO webkit specific?
+        //get transform scale of content document
         var $html = $(this.get("contentDocumentDOM"));
-        var matrix = $('html', $html).css('-webkit-transform');
-        var scale = new WebKitCSSMatrix(matrix).a;
+        var scale = 1.0;
+        var matrix = EpubAnnotations.Helpers.getMatrix($('html', $html));
+        if (matrix) {
+            scale = EpubAnnotations.Helpers.getScaleFromMatrix(matrix);
+        }
         this.set("scale", scale);
 
         try {
@@ -78,7 +80,7 @@ EpubAnnotations.ReflowableAnnotations = Backbone.Model.extend({
                 this.get("contentDocumentDOM"),
                 startMarkerHtml,
                 endMarkerHtml,
-                ["cfi-marker"],
+                ["cfi-marker","cfi-blacklist","mo-cfi-highlight"],
                 [],
                 ["MathJax_Message"]
                 );
@@ -95,7 +97,7 @@ EpubAnnotations.ReflowableAnnotations = Backbone.Model.extend({
                 rangeEndNode = rangeEndNode.previousSibling;
             }
             rangeEndNode = CFIRangeInfo.endElement.previousSibling ? CFIRangeInfo.endElement.previousSibling : CFIRangeInfo.endElement;
-            range = document.createRange();
+            range = this.get("contentDocumentDOM").createRange();
             range.setStart(rangeStartNode, 0);
             range.setEnd(rangeEndNode, rangeEndNode.length);
 
@@ -138,7 +140,7 @@ EpubAnnotations.ReflowableAnnotations = Backbone.Model.extend({
         //try {
 
             CFIRangeInfo = this.epubCFI.getRangeTargetNodes(CFI, contentDoc,
-                ["cfi-marker"],
+                ["cfi-marker","cfi-blacklist","mo-cfi-highlight"],
                 [],
                 ["MathJax_Message"]);
             var startNode = CFIRangeInfo.startNodes[0], endNode = CFIRangeInfo.endNodes[0];
@@ -183,7 +185,7 @@ EpubAnnotations.ReflowableAnnotations = Backbone.Model.extend({
                 CFI,
                 this.get("contentDocumentDOM"),
                 bookmarkMarkerHtml,
-                ["cfi-marker"],
+                ["cfi-marker","cfi-blacklist","mo-cfi-highlight"],
                 [],
                 ["MathJax_Message"]
             );
@@ -213,7 +215,7 @@ EpubAnnotations.ReflowableAnnotations = Backbone.Model.extend({
             $targetImage = this.epubCFI.getTargetElement(
                 CFI,
                 this.get("contentDocumentDOM"),
-                ["cfi-marker"],
+                ["cfi-marker","cfi-blacklist","mo-cfi-highlight"],
                 [],
                 ["MathJax_Message"]
             );
@@ -332,7 +334,7 @@ EpubAnnotations.ReflowableAnnotations = Backbone.Model.extend({
             firstSelectedImage = selectionInfo.selectedElements[0];
             generatedContentDocCFI = this.epubCFI.generateElementCFIComponent(
                 firstSelectedImage,
-                ["cfi-marker"],
+                ["cfi-marker","cfi-blacklist","mo-cfi-highlight"],
                 [],
                 ["MathJax_Message"]
             );
@@ -363,6 +365,11 @@ EpubAnnotations.ReflowableAnnotations = Backbone.Model.extend({
         var annotationViews = this.annotations.setAnnotationViewState(id, state, value);
 
         return annotationViews;
+    },
+
+    setAnnotationViewStateForAll : function (state, value) {
+
+        return this.annotations.setAnnotationViewStateForAll(state, value);
     },
 
     // ------------------------------------------------------------------------------------ //
@@ -418,7 +425,7 @@ EpubAnnotations.ReflowableAnnotations = Backbone.Model.extend({
             endNode,
             endOffset,
             commonAncestor,
-            ["cfi-marker"],
+            ["cfi-marker","cfi-blacklist","mo-cfi-highlight"],
             [],
             ["MathJax_Message"]
         );
@@ -437,7 +444,7 @@ EpubAnnotations.ReflowableAnnotations = Backbone.Model.extend({
             charOffsetCFI = this.epubCFI.generateCharacterOffsetCFIComponent(
                 startNode,
                 startOffset,
-                ["cfi-marker"],
+                ["cfi-marker","cfi-blacklist","mo-cfi-highlight"],
                 [],
                 ["MathJax_Message"]
             );

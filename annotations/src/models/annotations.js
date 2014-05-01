@@ -153,8 +153,8 @@ EpubAnnotations.Annotations = Backbone.Model.extend({
         var startMarker =  markers[annotationId].startMarker;
         var endMarker = markers[annotationId].endMarker;
 
-        startMarker.remove();
-        endMarker.remove();
+        $(startMarker).remove();
+        $(endMarker).remove();
 
         delete markers[annotationId];
 
@@ -320,6 +320,13 @@ EpubAnnotations.Annotations = Backbone.Model.extend({
         }
 
         return annotationViews;
+    },
+
+    setAnnotationViewStateForAll : function (state,value){
+        var annotationViews = this.get("annotationHash");
+        _.each(annotationViews,function(annotationView){
+           annotationView.setState(state,value);
+        });
     },
 
     // REFACTORING CANDIDATE: Some kind of hash lookup would be more efficient here, might want to 
