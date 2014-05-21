@@ -1,3 +1,4 @@
+define("rangy", function(){});
 var EpubAnnotationsModule = function (contentDocumentFrame, bbPageSetView, annotationCSSUrl) {
 
     var EpubAnnotations = {};
@@ -232,13 +233,6 @@ var EpubAnnotationsModule = function (contentDocumentFrame, bbPageSetView, annot
     },
 
     initialize : function (attributes, options) {
-//        this.getFromModel = this.get;
-//        this.get = function(attr){
-//            console.log('getting attr2: '+attr);
-//            var value = this.getFromModel(attr);
-//            console.log(value);
-//            return value;
-//        };
         this.set("scale", attributes.scale);
         this.constructHighlightViews();
     },
@@ -279,8 +273,8 @@ var EpubAnnotationsModule = function (contentDocumentFrame, bbPageSetView, annot
             }
         });
     },
-    normalizeRectangle: function (rect) {
 
+    normalizeRectangle: function (rect) {
         return {
             left: rect.left,
             right: rect.right,
@@ -290,29 +284,70 @@ var EpubAnnotationsModule = function (contentDocumentFrame, bbPageSetView, annot
             height: rect.bottom - rect.top
         };
     },
+
+    elementNodeAllowedTags: ["img"], //in lowercase
     constructHighlightViews : function () {
 
         var that = this;
-        var rectList = [];
+        var rectTextList = [], rectElementList = [];
         var inferrer;
         var inferredLines;
-
+        var rangeInfo = this.get("rangeInfo");
+        var selectedNodes = this.get("selectedNodes");
         var contentDocumentFrame = this.get("contentDocumentFrame");
-
-
-        _.each(this.get("selectedNodes"), function (node, index) {
-
-            var rects;
+        
+        if (rangeInfo && rangeInfo.startNode === rangeInfo.endNode) {
+            var node = rangeInfo.startNode;
             var range = contentDocumentFrame.contentDocument.createRange();
-            range.selectNodeContents(node);
-            rects = range.getClientRects();
+            range.setStart(node,rangeInfo.startOffset);
+            range.setEnd(node,rangeInfo.endOffset);
 
-            // REFACTORING CANDIDATE: Maybe a better way to append an array here
-            _.each(rects, function (rect) {
-                rectList.push(that.normalizeRectangle(rect));
-            });
+            if (node.nodeType === 3) {
+                rects = range.getClientRects();
+
+                _.each(rects, function (rect) {
+                    rectTextList.push(rect);
+                });
+                selectedNodes = [];
+            }
+//            } else if (node.nodeType === 1) {
+//                if(_.contains(this.elementNodeAllowedTags, node.tagName)) {
+//                    rectElementList.push(range.getBoundingClientRect());
+//                }
+//            }
+
+
+        }
+
+        _.each(selectedNodes, function (node) {
+            var range = contentDocumentFrame.contentDocument.createRange();
+            if (node.nodeType === 3) {
+                var rects;
+
+                if(rangeInfo && node === rangeInfo.startNode && rangeInfo.startOffset !== 0){
+                    range.setStart(node,rangeInfo.startOffset);
+                    range.setEnd(node,node.length);
+                }else if (rangeInfo && node === rangeInfo.endNode && rangeInfo.endOffset !== 0){
+                    range.setStart(node,0);
+                    range.setEnd(node,rangeInfo.endOffset);
+                }else{
+                    range.selectNodeContents(node);
+                }
+
+                rects = range.getClientRects();
+
+                _.each(rects, function (rect) {
+                    rectTextList.push(rect);
+                });
+            } else if (node.nodeType === 1) {
+                range.selectNodeContents(node);
+
+                if(_.contains(that.elementNodeAllowedTags, node.tagName.toLowerCase())) {
+                    rectElementList.push(range.getBoundingClientRect());
+                }
+            }
+
         });
-
 
         var scale = this.get("scale");
         //get & update model's transform scale of content document
@@ -327,7 +362,7 @@ var EpubAnnotationsModule = function (contentDocumentFrame, bbPageSetView, annot
             lineHorizontalThreshold: $html[0].clientWidth,
             lineHorizontalLimit: contentDocumentFrame.contentWindow.innerWidth
         });
-        inferredLines = inferrer.inferLines(rectList);
+        inferredLines = inferrer.inferLines(rectTextList);
         _.each(inferredLines, function (line, index) {
 
             var highlightTop = (line.startTop + that.get("offsetTopAddition")) / scale;
@@ -336,6 +371,28 @@ var EpubAnnotationsModule = function (contentDocumentFrame, bbPageSetView, annot
             var highlightWidth = line.width / scale;
 
             var highlightView = new EpubAnnotations.HighlightView({
+                highlightId: that.get('id'),
+                CFI : that.get("CFI"),
+                top : highlightTop,
+                left : highlightLeft,
+                height : highlightHeight,
+                width : highlightWidth,
+                styles : that.get('styles'),
+                highlightGroupCallback : that.highlightGroupCallback,
+                callbackContext : that
+            });
+
+            that.get("highlightViews").push(highlightView);
+        });
+
+        _.each(rectElementList, function (rect) {
+            var highlightTop = (rect.top + that.get("offsetTopAddition")) / scale;
+            var highlightLeft = (rect.left + that.get("offsetLeftAddition")) / scale;
+            var highlightHeight = rect.height / scale;
+            var highlightWidth = rect.width / scale;
+
+            var highlightView = new EpubAnnotations.HighlightBorderView({
+                highlightId: that.get('id'),
                 CFI : that.get("CFI"),
                 top : highlightTop,
                 left : highlightLeft,
@@ -597,18 +654,19 @@ var EpubAnnotationsModule = function (contentDocumentFrame, bbPageSetView, annot
     EpubAnnotations.ReflowableAnnotations = Backbone.Model.extend({
 
     initialize : function (attributes, options) {
+
         this.epubCFI = EPUBcfi;
         this.annotations = new EpubAnnotations.Annotations({
-            offsetTopAddition : 0, 
-            offsetLeftAddition : 0, 
+            offsetTopAddition : 0,
+            offsetLeftAddition : 0,
             readerBoundElement : $("html", this.get("contentDocumentDOM"))[0],
             contentDocumentFrame: this.get("contentDocumentFrame"),
             scale: 0,
             bbPageSetView : this.get("bbPageSetView")
         });
-        // inject annotation CSS into iframe 
+        // inject annotation CSS into iframe
 
-        
+
         var annotationCSSUrl = this.get("annotationCSSUrl");
         if (annotationCSSUrl)
         {
@@ -628,7 +686,9 @@ var EpubAnnotationsModule = function (contentDocumentFrame, bbPageSetView, annot
             }
         });
 
-
+        if(!rangy.initialized){
+            rangy.init();
+        }
     },
 
     // ------------------------------------------------------------------------------------ //
@@ -647,7 +707,7 @@ var EpubAnnotationsModule = function (contentDocumentFrame, bbPageSetView, annot
 
 
 
-    addHighlight : function (CFI, id, type, styles) {
+    addHighlightWithMarkers : function (CFI, id, type, styles) {
 
         var CFIRangeInfo;
         var range;
@@ -680,7 +740,7 @@ var EpubAnnotationsModule = function (contentDocumentFrame, bbPageSetView, annot
 
             // Get start and end marker for the id, using injected into elements
             // REFACTORING CANDIDATE: Abstract range creation to account for no previous/next sibling, for different types of
-            //   sibiling, etc. 
+            //   sibiling, etc.
             rangeStartNode = CFIRangeInfo.startElement.nextSibling ? CFIRangeInfo.startElement.nextSibling : CFIRangeInfo.startElement;
             while(rangeStartNode.nodeType !== 3){
                 rangeStartNode = rangeStartNode.nextSibling;
@@ -706,13 +766,64 @@ var EpubAnnotationsModule = function (contentDocumentFrame, bbPageSetView, annot
             }
 
             return {
-                CFI : CFI, 
+                CFI : CFI,
                 selectedElements : selectionInfo.selectedElements
             };
 
         } catch (error) {
             console.log(error.message);
         }
+    },
+
+    addHighlight : function (CFI, id, type, styles) {
+
+        var CFIRangeInfo;
+        var range;
+        var rangeStartNode;
+        var rangeEndNode;
+        var selectedElements;
+        var leftAddition;
+
+        var contentDoc = this.get("contentDocumentDOM");
+        // TODO webkit specific?
+        var matrix = $('html', contentDoc).css('-webkit-transform');
+        var scale = new WebKitCSSMatrix(matrix).a;
+        this.set("scale", scale);
+
+        //try {
+
+            CFIRangeInfo = this.epubCFI.getRangeTargetNodes(CFI, contentDoc,
+                ["cfi-marker","cfi-blacklist","mo-cfi-highlight"],
+                [],
+                ["MathJax_Message"]);
+            var startNode = CFIRangeInfo.startNodes[0], endNode = CFIRangeInfo.endNodes[0];
+
+            range = rangy.createRange(contentDoc);
+            if(startNode.length< CFIRangeInfo.startOffset){
+                //this is a workaround "Uncaught IndexSizeError: Index or size was negative, or greater than the allowed value." errors
+                //the range cfi generator outputs a cfi like /4/2,/1:125,/16
+                //can't explain, investigating..
+                CFIRangeInfo.startOffset = startNode.length;
+            }
+            range.setStart(startNode, CFIRangeInfo.startOffset);
+            range.setEnd(endNode, CFIRangeInfo.endOffset);
+
+            selectedElements = range.getNodes();
+            leftAddition = -this.getPaginationLeftOffset();
+
+            if (type === "highlight") {
+                this.annotations.set('scale', this.get('scale'));
+                this.annotations.addHighlight(id, CFI, selectedElements, startNode,range.startOffset,endNode,range.endOffset, 0, leftAddition, styles);
+            }
+
+            return {
+                CFI : CFI,
+                selectedElements : selectedElements
+            };
+
+       /* } catch (error) {
+            console.log(error.message);
+        } */
     },
 
     addBookmark : function (CFI, id, type) {
@@ -738,7 +849,7 @@ var EpubAnnotationsModule = function (contentDocumentFrame, bbPageSetView, annot
 
             return {
 
-                CFI : CFI, 
+                CFI : CFI,
                 selectedElements : $injectedElement[0]
             };
 
@@ -765,7 +876,7 @@ var EpubAnnotationsModule = function (contentDocumentFrame, bbPageSetView, annot
 
             return {
 
-                CFI : CFI, 
+                CFI : CFI,
                 selectedElements : $targetImage[0]
             };
 
@@ -822,11 +933,11 @@ var EpubAnnotationsModule = function (contentDocumentFrame, bbPageSetView, annot
                 annotationInfo = this.addHighlight(CFI, id, type, styles);
             }
 
-            // Rationale: The annotationInfo object returned from .addBookmark(...) contains the same value of 
+            // Rationale: The annotationInfo object returned from .addBookmark(...) contains the same value of
             //   the CFI variable in the current scope. Since this CFI variable contains a "hacked" CFI value -
             //   only the content document portion is valid - we want to replace the annotationInfo.CFI property with
             //   the partial content document CFI portion we originally generated.
-            annotationInfo.CFI = generatedContentDocCFI;            
+            annotationInfo.CFI = generatedContentDocCFI;
             return annotationInfo;
         }
         else {
@@ -848,7 +959,7 @@ var EpubAnnotationsModule = function (contentDocumentFrame, bbPageSetView, annot
             CFI = "epubcfi(" + arbitraryPackageDocCFI + generatedContentDocCFI + ")";
             annotationInfo = this.addBookmark(CFI, id, type);
 
-            // Rationale: The annotationInfo object returned from .addBookmark(...) contains the same value of 
+            // Rationale: The annotationInfo object returned from .addBookmark(...) contains the same value of
             //   the CFI variable in the current scope. Since this CFI variable contains a "hacked" CFI value -
             //   only the content document portion is valid - we want to replace the annotationInfo.CFI property with
             //   the partial content document CFI portion we originally generated.
@@ -883,7 +994,7 @@ var EpubAnnotationsModule = function (contentDocumentFrame, bbPageSetView, annot
             CFI = "epubcfi(" + arbitraryPackageDocCFI + generatedContentDocCFI + ")";
             annotationInfo = this.addImageAnnotation(CFI, id);
 
-            // Rationale: The annotationInfo object returned from .addBookmark(...) contains the same value of 
+            // Rationale: The annotationInfo object returned from .addBookmark(...) contains the same value of
             //   the CFI variable in the current scope. Since this CFI variable contains a "hacked" CFI value -
             //   only the content document portion is valid - we want to replace the annotationInfo.CFI property with
             //   the partial content document CFI portion we originally generated.
@@ -933,11 +1044,11 @@ var EpubAnnotationsModule = function (contentDocumentFrame, bbPageSetView, annot
         }
 
         this.findSelectedElements(
-            selectedRange.commonAncestorContainer, 
-            selectedRange.startContainer, 
+            selectedRange.commonAncestorContainer,
+            selectedRange.startContainer,
             selectedRange.endContainer,
             intervalState,
-            selectedElements, 
+            selectedElements,
             elementType
         );
 
@@ -952,29 +1063,27 @@ var EpubAnnotationsModule = function (contentDocumentFrame, bbPageSetView, annot
 
         var startNode = selectedRange.startContainer;
         var endNode = selectedRange.endContainer;
+        var commonAncestor = selectedRange.commonAncestorContainer;
         var startOffset;
         var endOffset;
         var rangeCFIComponent;
 
-        if (startNode.nodeType === Node.TEXT_NODE && endNode.nodeType === Node.TEXT_NODE) {
 
-            startOffset = selectedRange.startOffset;
-            endOffset = selectedRange.endOffset;
+        startOffset = selectedRange.startOffset;
+        endOffset = selectedRange.endOffset;
 
-            rangeCFIComponent = this.epubCFI.generateCharOffsetRangeComponent(
-                startNode, 
-                startOffset, 
-                endNode, 
-                endOffset,
-                ["cfi-marker","cfi-blacklist","mo-cfi-highlight"],
-                [],
-                ["MathJax_Message"]
-                );
-            return rangeCFIComponent;
-        }
-        else {
-            throw new Error("Selection start and end must be text nodes");
-        }
+        rangeCFIComponent = this.epubCFI.generateMixedRangeComponent(
+            startNode,
+            startOffset,
+            endNode,
+            endOffset,
+            commonAncestor,
+            ["cfi-marker","cfi-blacklist","mo-cfi-highlight"],
+            [],
+            ["MathJax_Message"]
+        );
+        return rangeCFIComponent;
+
     },
 
     generateCharOffsetCFI : function (selectedRange) {
@@ -1039,7 +1148,7 @@ var EpubAnnotationsModule = function (contentDocumentFrame, bbPageSetView, annot
             }
             else {
                 if ($(currElement).is(elementType)) {
-                    selectedElements.push(currElement);    
+                    selectedElements.push(currElement);
                 }
             }
         });
@@ -1102,6 +1211,7 @@ var EpubAnnotationsModule = function (contentDocumentFrame, bbPageSetView, annot
         );
     }
 });
+
 
     EpubAnnotations.Annotations = Backbone.Model.extend({
 
@@ -1247,7 +1357,7 @@ var EpubAnnotationsModule = function (contentDocumentFrame, bbPageSetView, annot
         $(this.get("readerBoundElement")).append(bookmarkView.render());
     },
 
-    removeHighlight: function(annotationId) {
+    removeHighlightWithMarkers: function(annotationId) {
         var annotationHash = this.get("annotationHash");
         var highlights = this.get("highlights");
         var markers = this.get("markers");
@@ -1280,7 +1390,28 @@ var EpubAnnotationsModule = function (contentDocumentFrame, bbPageSetView, annot
                              this.set("highlights", highlights);
     },
 
-    addHighlight : function (CFI, highlightedTextNodes, annotationId, offsetTop, offsetLeft, startMarker, endMarker, styles) {
+    removeHighlight: function(annotationId) {
+        var annotationHash = this.get("annotationHash");
+        var highlights = this.get("highlights");
+
+        delete annotationHash[annotationId];
+
+        highlights = _.reject(highlights,
+            function(obj) {
+                if (obj.id == annotationId) {
+                    obj.destroyCurrentHighlights();
+                    return true;
+                } else {
+                    return false;
+                }
+            }
+        );
+
+
+        this.set("highlights", highlights);
+    },
+
+    addHighlightWithMarkers : function (CFI, highlightedTextNodes, annotationId, offsetTop, offsetLeft, startMarker, endMarker, styles) {
         if (!offsetTop) {
             offsetTop = this.get("offsetTopAddition");
         }
@@ -1307,6 +1438,41 @@ var EpubAnnotationsModule = function (contentDocumentFrame, bbPageSetView, annot
         this.get("markers")[annotationId] = {"startMarker": startMarker, "endMarker":endMarker};
         highlightGroup.renderHighlights(this.get("readerBoundElement"));
     },
+
+    addHighlight: function (annotationId, CFI, highlightedNodes, startNode, startOffset, endNode, endOffset,  offsetTop, offsetLeft, styles) {
+        if (!offsetTop) {
+            offsetTop = this.get("offsetTopAddition");
+        }
+        if (!offsetLeft) {
+            offsetLeft = this.get("offsetLeftAddition");
+        }
+
+        annotationId = annotationId.toString();
+        this.validateAnnotationId(annotationId);
+
+        var highlightGroup = new EpubAnnotations.HighlightGroup({
+            CFI : CFI,
+            selectedNodes : highlightedNodes,
+            offsetTopAddition : offsetTop,
+            offsetLeftAddition : offsetLeft,
+            styles: styles,
+            id : annotationId,
+            bbPageSetView : this.get("bbPageSetView"),
+            scale: this.get("scale"),
+            contentDocumentFrame: this.get("contentDocumentFrame"),
+            rangeInfo: {
+                startNode: startNode,
+                startOffset: startOffset,
+                endNode: endNode,
+                endOffset: endOffset
+            }
+        });
+        this.get("annotationHash")[annotationId] = highlightGroup;
+        this.get("highlights").push(highlightGroup);
+        highlightGroup.renderHighlights(this.get("readerBoundElement"));
+    },
+
+
 
     addUnderline : function (CFI, underlinedTextNodes, annotationId, offsetTop, offsetLeft, styles) {
 
@@ -1497,8 +1663,9 @@ var EpubAnnotationsModule = function (contentDocumentFrame, bbPageSetView, annot
         "contextmenu" : "highlightEvent"
     },
 
-    initialize : function (options) {
 
+    initialize : function (options) {
+        this.$el.attr('data-id',options.highlightId);
         this.highlight = new EpubAnnotations.Highlight({
             CFI : options.CFI,
             top : options.top,
@@ -1540,7 +1707,8 @@ var EpubAnnotationsModule = function (contentDocumentFrame, bbPageSetView, annot
 
         var styles = this.highlight.get("styles") || {};
         
-        this.$el.css({ 
+        this.$el.css({
+            "position" : "absolute",
             "top" : this.highlight.get("top") + "px",
             "left" : this.highlight.get("left") + "px",
             "height" : this.highlight.get("height") + "px",
@@ -1591,7 +1759,10 @@ EpubAnnotations.HighlightBorderView = EpubAnnotations.HighlightView.extend({
 
         this.$el.css({
             backgroundClip: 'padding-box',
-            border:'5px solid rgba(255, 0, 0, 0.3)'
+            borderStyle:'solid',
+            borderWidth: '5px',
+            marginLeft: "-5px",
+            marginTop: "-5px"
         });
         this._super();
     },
