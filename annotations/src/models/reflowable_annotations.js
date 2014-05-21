@@ -132,9 +132,12 @@ EpubAnnotations.ReflowableAnnotations = Backbone.Model.extend({
         var leftAddition;
 
         var contentDoc = this.get("contentDocumentDOM");
-        // TODO webkit specific?
-        var matrix = $('html', contentDoc).css('-webkit-transform');
-        var scale = new WebKitCSSMatrix(matrix).a;
+        //get transform scale of content document
+        var scale = 1.0;
+        var matrix = EpubAnnotations.Helpers.getMatrix($('html', contentDoc));
+        if (matrix) {
+            scale = EpubAnnotations.Helpers.getScaleFromMatrix(matrix);
+        }
         this.set("scale", scale);
 
         //try {
