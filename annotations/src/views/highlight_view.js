@@ -9,8 +9,9 @@ EpubAnnotations.HighlightView = Backbone.View.extend({
         "contextmenu" : "highlightEvent"
     },
 
-    initialize : function (options) {
 
+    initialize : function (options) {
+        this.$el.attr('data-id',options.highlightId);
         this.highlight = new EpubAnnotations.Highlight({
             CFI : options.CFI,
             top : options.top,

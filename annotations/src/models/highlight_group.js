@@ -146,6 +146,7 @@ EpubAnnotations.HighlightGroup = Backbone.Model.extend({
             var highlightWidth = line.width / scale;
 
             var highlightView = new EpubAnnotations.HighlightView({
+                highlightId: that.get('id'),
                 CFI : that.get("CFI"),
                 top : highlightTop,
                 left : highlightLeft,
@@ -166,6 +167,7 @@ EpubAnnotations.HighlightGroup = Backbone.Model.extend({
             var highlightWidth = rect.width / scale;
 
             var highlightView = new EpubAnnotations.HighlightBorderView({
+                highlightId: that.get('id'),
                 CFI : that.get("CFI"),
                 top : highlightTop,
                 left : highlightLeft,
