@@ -121,6 +121,16 @@ EpubAnnotations.ReflowableAnnotations = Backbone.Model.extend({
             console.log(error.message);
         }
     },
+    normalizeRectangle: function (rect) {
+        return {
+            left: rect.left,
+            right: rect.right,
+            top: rect.top,
+            bottom: rect.bottom,
+            width: rect.right - rect.left,
+            height: rect.bottom - rect.top
+        };
+    },
 
     addHighlight : function (CFI, id, type, styles) {
 
@@ -137,6 +147,20 @@ EpubAnnotations.ReflowableAnnotations = Backbone.Model.extend({
         var matrix = EpubAnnotations.Helpers.getMatrix($('html', contentDoc));
         if (matrix) {
             scale = EpubAnnotations.Helpers.getScaleFromMatrix(matrix);
+        }
+
+        //create a dummy test div to determine if the browser provides
+        // client rectangles that take transform scaling into consideration
+        var $div = $('<div style="font-size: 50px; position: absolute; background: red; top:-9001px;">##</div>');
+        $(contentDoc.documentElement).append($div);
+        range = contentDoc.createRange();
+        range.selectNode($div[0]);
+        var renderedWidth = this.normalizeRectangle(range.getBoundingClientRect()).width;
+        var clientWidth = $div[0].clientWidth;
+        $div.remove();
+        if ((renderedWidth / clientWidth) === 1) {
+            //browser doesn't provide scaled client rectangles (firefox)
+            scale = 1;
         }
         this.set("scale", scale);
 

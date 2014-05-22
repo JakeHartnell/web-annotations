@@ -125,13 +125,7 @@ EpubAnnotations.HighlightGroup = Backbone.Model.extend({
         });
 
         var scale = this.get("scale");
-        //get & update model's transform scale of content document
         var $html = $('html',contentDocumentFrame.contentDocument);
-        var matrix = EpubAnnotations.Helpers.getMatrix($html);
-        if (matrix) {
-            scale = EpubAnnotations.Helpers.getScaleFromMatrix(matrix);
-        }
-        this.set("scale", scale);
 
         inferrer = new EpubAnnotations.TextLineInferrer({
             lineHorizontalThreshold: $html[0].clientWidth,
