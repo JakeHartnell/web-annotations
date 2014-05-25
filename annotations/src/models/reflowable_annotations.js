@@ -553,6 +553,10 @@ EpubAnnotations.ReflowableAnnotations = Backbone.Model.extend({
     getPaginationLeftOffset : function () {
 
         var $htmlElement = $("html", this.get("contentDocumentDOM"));
+        if (!$htmlElement || !$htmlElement.length) {
+            // if there is no html element, we might be dealing with a fxl with a svg spine item
+            return 0;
+        }
         var offsetLeftPixels = $htmlElement.css("left");
         var offsetLeft = parseInt(offsetLeftPixels.replace("px", ""));
         if(isNaN(offsetLeft)){
