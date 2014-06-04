@@ -158,9 +158,14 @@ EpubAnnotations.ReflowableAnnotations = Backbone.Model.extend({
         var renderedWidth = this.normalizeRectangle(range.getBoundingClientRect()).width;
         var clientWidth = $div[0].clientWidth;
         $div.remove();
-        if ((renderedWidth / clientWidth) === 1) {
+        var renderedVsClientWidthFactor = renderedWidth / clientWidth;
+        if (renderedVsClientWidthFactor === 1) {
             //browser doesn't provide scaled client rectangles (firefox)
             scale = 1;
+        } else if (EpubAnnotations.isIeLessThan11) {
+            //use the test scale factor as our scale value for IE 9/10
+            scale = renderedVsClientWidthFactor;
+            console.log("IE9 Scale: "+scale);
         }
         this.set("scale", scale);
 

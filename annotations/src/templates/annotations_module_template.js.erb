@@ -3,6 +3,14 @@ var EpubAnnotationsModule = function (contentDocumentFrame, bbPageSetView, annot
 
     var EpubAnnotations = {};
 
+    //determine if browser is less than IE11
+    var div = document.createElement("div");
+    div.innerHTML = "<!--[if lt IE 11]><i></i><![endif]-->";
+    EpubAnnotations.isIeLessThan11 = (div.getElementsByTagName("i").length == 1);
+    $(div).remove();
+
+
+
     // Rationale: The order of these matters
     <%= helpers %>
     <%= text_line_inferrer %>
