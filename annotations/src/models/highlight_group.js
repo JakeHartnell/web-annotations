@@ -125,16 +125,13 @@ EpubAnnotations.HighlightGroup = Backbone.Model.extend({
         });
 
         var scale = this.get("scale");
-
-        var contentDoc = this.get("contentDocumentDOM");
+        var $html = $('html',contentDocumentFrame.contentDocument);
         //is there a transform scale for the content document?
-        var matrix = EpubAnnotations.Helpers.getMatrix($('html', contentDoc));
+        var matrix = EpubAnnotations.Helpers.getMatrix($html);
         if (!matrix && (EpubAnnotations.isIe9 || EpubAnnotations.isIe10)) {
             //if there's no transform scale then set the scale as the IE zoom factor
             scale = (window.screen.deviceXDPI / 96); //96dpi == 100% scale
         }
-
-        var $html = $('html',contentDocumentFrame.contentDocument);
 
         inferrer = new EpubAnnotations.TextLineInferrer({
             lineHorizontalThreshold: $html[0].clientWidth,
