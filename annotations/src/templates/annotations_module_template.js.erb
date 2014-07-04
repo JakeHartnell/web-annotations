@@ -3,12 +3,16 @@ var EpubAnnotationsModule = function (contentDocumentFrame, bbPageSetView, annot
 
     var EpubAnnotations = {};
 
-    //determine if browser is less than IE11
+    //determine if browser is IE9 or IE10
     var div = document.createElement("div");
-    div.innerHTML = "<!--[if lt IE 11]><i></i><![endif]-->";
-    EpubAnnotations.isIeLessThan11 = (div.getElementsByTagName("i").length == 1);
-    $(div).remove();
-
+    div.innerHTML = "<!--[if IE 9]><i></i><![endif]-->";
+    EpubAnnotations.isIe9 = (div.getElementsByTagName("i").length == 1);
+    EpubAnnotations.isIe10 = false;
+    /*@cc_on
+     EpubAnnotations.isIe10 = (@_jscript_version == 10);
+     @*/
+    console.log(EpubAnnotations.isIe9);
+    console.log(EpubAnnotations.isIe10);
 
 
     // Rationale: The order of these matters
