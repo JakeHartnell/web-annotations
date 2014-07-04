@@ -3,12 +3,14 @@ var EpubAnnotationsModule = function (contentDocumentFrame, bbPageSetView, annot
 
     var EpubAnnotations = {};
 
-    //determine if browser is less than IE11
+    //determine if browser is IE9 or IE10
     var div = document.createElement("div");
-    div.innerHTML = "<!--[if lt IE 11]><i></i><![endif]-->";
-    EpubAnnotations.isIeLessThan11 = (div.getElementsByTagName("i").length == 1);
-    $(div).remove();
-
+    div.innerHTML = "<!--[if IE 9]><i></i><![endif]-->";
+    EpubAnnotations.isIe9 = (div.getElementsByTagName("i").length == 1);
+    EpubAnnotations.isIe10 = false;
+    /*@cc_on
+     EpubAnnotations.isIe10 = (@_jscript_version == 10);
+     @*/
 
 
     // Rationale: The order of these matters
@@ -353,7 +355,7 @@ var EpubAnnotationsModule = function (contentDocumentFrame, bbPageSetView, annot
         var contentDoc = this.get("contentDocumentDOM");
         //is there a transform scale for the content document?
         var matrix = EpubAnnotations.Helpers.getMatrix($('html', contentDoc));
-        if (!matrix && EpubAnnotations.isIeLessThan11) {
+        if (!matrix && (EpubAnnotations.isIe9 || EpubAnnotations.isIe10)) {
             //if there's no transform scale then set the scale as the IE zoom factor
             scale = (window.screen.deviceXDPI / 96); //96dpi == 100% scale
         }
@@ -817,7 +819,7 @@ var EpubAnnotationsModule = function (contentDocumentFrame, bbPageSetView, annot
         if (renderedVsClientWidthFactor === 1) {
             //browser doesn't provide scaled client rectangles (firefox)
             scale = 1;
-        } else if (EpubAnnotations.isIeLessThan11) {
+        } else if (EpubAnnotations.isIe9 || EpubAnnotations.isIe10) {
             //use the test scale factor as our scale value for IE 9/10
             scale = renderedVsClientWidthFactor;
         }
